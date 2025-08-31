@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrewAI Agent Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom Tooltip Styling */
+      [data-tooltip] {
+        position: relative;
+        cursor: pointer;
+      }
+      [data-tooltip]::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 10px;
+        background-color: #0A0920; /* background */
+        color: #F0F2F5; /* text-primary */
+        border: 1px solid rgba(68, 63, 127, 0.5); /* border */
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+        z-index: 10;
+        pointer-events: none;
+      }
+      [data-tooltip]:hover::before {
+        opacity: 1;
+        visibility: visible;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'background': '#0A0920',
+              'surface': 'rgba(23, 21, 58, 0.6)', /* Adjusted for glassmorphism */
+              'surface-light': 'rgba(36, 33, 91, 0.6)', /* Adjusted for glassmorphism */
+              'border': 'rgba(68, 63, 127, 0.5)',
+              'primary': '#F021B5',
+              'primary-light': '#FF7ED7',
+              'secondary': '#00F5D4',
+              'text-primary': '#F0F2F5',
+              'text-secondary': '#A9A5D5',
+              'success': '#32CD32',
+              'error': '#FF5252'
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['Fira Code', 'monospace'],
+            },
+            keyframes: {
+              aurora: {
+                '0%': { backgroundPosition: '0% 50%' },
+                '50%': { backgroundPosition: '100% 50%' },
+                '100%': { backgroundPosition: '0% 50%' },
+              },
+              fadeIn: {
+                '0%': { opacity: 0, transform: 'translateY(10px)' },
+                '100%': { opacity: 1, transform: 'translateY(0)' },
+              },
+              pulseGlow: {
+                '0%, 100%': { boxShadow: '0 0 15px 0px rgba(240, 33, 181, 0.5), 0 0 5px 0px rgba(0, 245, 212, 0.5)' },
+                '50%': { boxShadow: '0 0 25px 6px rgba(240, 33, 181, 0.5), 0 0 10px 0px rgba(0, 245, 212, 0.5)' }
+              },
+              subtleFloat: {
+                '0%, 100%': { transform: 'translateY(0px)' },
+                '50%': { transform: 'translateY(-4px)' }
+              },
+              ringGlow: {
+                 '0%, 100%': { boxShadow: '0 0 0 2px rgba(240, 33, 181, 0.2), 0 0 0 4px rgba(240, 33, 181, 0.1)' },
+                 '50%': { boxShadow: '0 0 0 2px rgba(240, 33, 181, 0.4), 0 0 0 4px rgba(240, 33, 181, 0.2)' }
+              },
+              buttonPress: {
+                '0%, 100%': { transform: 'scale(1)' },
+                '50%': { transform: 'scale(0.97)' }
+              }
+            },
+            animation: {
+              aurora: 'aurora 15s ease infinite',
+              fadeIn: 'fadeIn 0.5s ease-out forwards',
+              pulseGlow: 'pulseGlow 2.5s ease-in-out infinite',
+              subtleFloat: 'subtleFloat 6s ease-in-out infinite',
+              ringGlow: 'ringGlow 2s ease-in-out infinite',
+              buttonPress: 'buttonPress 0.2s ease-out'
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.16.0",
+    "marked": "https://aistudiocdn.com/marked@^16.2.1"
+  }
+}
+</script>
+</head>
+  <body class="bg-background text-text-primary">
+    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/30 opacity-20 animate-aurora -z-10"></div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

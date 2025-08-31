@@ -1,0 +1,5 @@
+{
+  "name": "CrewAI Agent Platform",
+  "description": "A web platform for defining tasks and running CrewAI agents to see their process and final output. Inspired by AgentGPT and powered by Gemini, this application provides a visually engaging and interactive experience for managing AI agent workflows.",
+  "requestFramePermissions": []
+}
