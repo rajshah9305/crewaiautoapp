@@ -266,7 +266,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const execute = () => {
+    const execute = async () => {
       if (appState !== 'EXECUTING') return;
       
       const allTasksDone = tasks.length > 0 && tasks.every(t => t.status === 'completed');
@@ -275,36 +275,44 @@ const App: React.FC = () => {
         setAppState('FINALIZING');
         return;
       }
+
+      // Check if a task is already running. If so, do not start another one.
+      const isTaskRunning = tasks.some(t => t.status === 'in-progress');
+      if (isTaskRunning) {
+        return;
+      }
       
-      const runnableTasks = tasks.filter(task => task.status === 'pending');
+      // Find the next available task to run.
+      const nextTask = tasks.find(task => task.status === 'pending');
       
-      if (runnableTasks.length === 0) return;
+      if (!nextTask) {
+        // No pending tasks, maybe some are blocked or errored.
+        // The effect will re-trigger if states change.
+        return;
+      }
       
-      const taskIdsToStart = runnableTasks.map(t => t.id);
-      setTasks(prev => prev.map(t => taskIdsToStart.includes(t.id) ? { ...t, status: 'in-progress' } : t));
+      // Mark the task as in-progress and start execution.
+      // This state update will cause a re-render, and the 'isTaskRunning' guard
+      // will prevent new tasks from starting until this one is done.
+      updateTaskStatus(nextTask.id, 'in-progress');
       
-      runnableTasks.forEach(task => {
-        const executeSingleTask = async () => {
-          try {
-            addLogEntry('System', `Executing Task: "${task.title}" // Agent: ${task.agent}`, 'system');
-            addLogEntry(task.agent, ``, 'thought', true);
-            const agentContextLogs = logEntriesRef.current.filter(e => e.type !== 'user');
-            
-            await agentService.executeTaskStream(task, goal, agentContextLogs, updateLastLogEntry, () => {
-                markLastLogFinished();
-                updateTaskStatus(task.id, 'completed');
-            });
-          } catch(error) {
-              const err = error instanceof Error ? error.message : "An unknown task execution error occurred.";
-              markLastLogFinished();
-              updateTaskStatus(task.id, 'error', err);
-              setAppState('ERROR');
-              setErrorMessage(err);
-              addLogEntry('System', `Execution failed for task "${task.title}". Halting mission. You may retry or modify the failed task.`, 'error');
-          }
-        };
-        executeSingleTask();
-      });
+      try {
+        addLogEntry('System', `Executing Task: "${nextTask.title}" // Agent: ${nextTask.agent}`, 'system');
+        addLogEntry(nextTask.agent, ``, 'thought', true);
+        const agentContextLogs = logEntriesRef.current.filter(e => e.type !== 'user');
+        
+        await agentService.executeTaskStream(nextTask, goal, agentContextLogs, updateLastLogEntry, () => {
+            markLastLogFinished();
+            updateTaskStatus(nextTask.id, 'completed');
+        });
+      } catch(error) {
+          const err = error instanceof Error ? error.message : "An unknown task execution error occurred.";
+          markLastLogFinished();
+          updateTaskStatus(nextTask.id, 'error', err);
+          setAppState('ERROR');
+          setErrorMessage(err);
+          addLogEntry('System', `Execution failed for task "${nextTask.title}". Halting mission. You may retry or modify the failed task.`, 'error');
+      }
     };
     execute();
   }, [appState, tasks, goal, addLogEntry, markLastLogFinished, updateLastLogEntry, updateTaskStatus]);

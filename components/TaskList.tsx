@@ -236,13 +236,15 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                                 return (
                                     <li key={task.id} className="group/task flex flex-col text-sm p-2 rounded-md hover:bg-surface/50">
                                         <div className="flex items-start gap-3 w-full">
-                                            <div className="mt-0.5 flex-shrink-0 flex items-center gap-2" title={agent.name}>
-                                                <TaskStatusIcon status={task.status} />
-                                                <agent.icon className="h-4 w-4 text-text-secondary opacity-70" />
+                                            <div className="mt-1 flex-shrink-0" title={`Assigned to: ${agent.name}`}>
+                                                <agent.icon className="h-5 w-5 text-text-secondary" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-text-primary font-medium">{task.title}</p>
-                                                <p className="text-text-secondary text-xs">{task.description}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <TaskStatusIcon status={task.status} />
+                                                    <p className="text-text-primary font-medium">{task.title}</p>
+                                                </div>
+                                                <p className="text-text-secondary text-xs mt-0.5 ml-7">{task.description}</p>
                                             </div>
                                             <div className="flex items-center gap-0 opacity-0 group-hover/task:opacity-100 transition-opacity">
                                                 {(isPlanEditable || task.status === 'error') && (
