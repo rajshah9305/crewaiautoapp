@@ -21,14 +21,14 @@ const AgentActivityVisual: React.FC<{ agent: string }> = ({ agent }) => {
         return (
            <div className="flex items-center gap-3 p-3 font-mono">
              <SparklesIcon className="h-5 w-5 text-secondary animate-subtle-glow" style={{ filter: `drop-shadow(0 0 5px currentColor)` }}/>
-             <span className="text-sm font-semibold text-secondary">EXECUTING DIRECTIVE...</span>
+             <span className="text-sm font-semibold text-secondary uppercase">Executing Directive...</span>
            </div>
         );
     }
   };
 
   return (
-    <div className="bg-surface/50 holographic-border rounded-lg mb-4 animate-fadeIn overflow-hidden animate-holographic-shimmer">
+    <div className="bg-black/20 rounded-lg mb-4 overflow-hidden border border-border/30 shadow-inner">
       {getVisualForAgent()}
     </div>
   );

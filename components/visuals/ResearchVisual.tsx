@@ -12,10 +12,9 @@ const styles = `
   stroke-width: 0.75;
   opacity: 0.7;
   transform-origin: center;
-  filter: drop-shadow(0 0 5px var(--glow-color-primary));
 }
 .scanner-arc {
-  fill: var(--secondary-color);
+  fill: var(--accent-color);
   opacity: 0.2;
   transform-origin: center;
   animation: sweep 4s ease-in-out infinite;
@@ -25,8 +24,8 @@ const styles = `
   animation: blink 1.5s infinite;
 }
 @keyframes rotate {
-  from { transform: rotate3d(0, 1, 0, 0deg); }
-  to { transform: rotate3d(0, 1, 0, 360deg); }
+  from { transform: rotate3d(0.5, 0.8, 0, 0deg); }
+  to { transform: rotate3d(0.5, 0.8, 0, 360deg); }
 }
 @keyframes sweep {
   0% { transform: rotate(0deg) scaleY(0); }
@@ -43,11 +42,11 @@ const ResearchVisual: React.FC = () => {
     return (
         <div className="p-3 font-mono">
             <style>{styles}</style>
-            <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs">
-                <ResearchIcon className="w-4 h-4 text-secondary" style={{ filter: `drop-shadow(0 0 3px currentColor)` }} />
-                <span>SCANNING SECTOR...</span>
+            <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs uppercase">
+                <ResearchIcon className="w-4 h-4 text-secondary" />
+                <span>Scanning Sector...</span>
             </div>
-            <div className="w-full h-24 flex items-center justify-center bg-black/30 overflow-hidden border border-border/50 rounded-md">
+            <div className="w-full h-20 flex items-center justify-center bg-black/30 overflow-hidden border border-border/50 rounded-md">
                 <svg viewBox="-50 -50 100 100">
                     <defs>
                         <radialGradient id="planet-gradient" cx="25%" cy="25%">

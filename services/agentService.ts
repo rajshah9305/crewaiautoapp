@@ -9,7 +9,12 @@ export const planTasks = async (goal: string): Promise<Task[]> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: `You are a master AI project planner for a team of specialized AI agents. Your available agents are: ${AGENT_ROLES.join(', ')}. Given the user's goal: "${goal}", break it down into a comprehensive, logical sequence of tasks. For each task, specify the most suitable agent to perform it. The final task should typically involve synthesizing the results into a complete answer. Return a JSON array of objects, where each object has "title", "description", and "agent" properties. The "agent" must be one of the available agent types. Ensure the response is only the JSON array.`,
+      contents: `As an expert AI project planner, your task is to break down the user's goal into a sequence of tasks for a team of specialized AI agents.
+User Goal: "${goal}"
+Available Agents: ${AGENT_ROLES.join(', ')}.
+The final task should synthesize all previous results into a complete answer.
+Your response MUST be a valid JSON array of objects, where each object has "title", "description", and "agent" properties. The "agent" must be one of the available agent types.
+Do NOT include any text outside of the JSON array.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -39,6 +44,10 @@ export const planTasks = async (goal: string): Promise<Task[]> => {
     const jsonString = rawResponse.substring(startIndex, endIndex + 1);
     const parsedTasks = JSON.parse(jsonString);
 
+    if (!Array.isArray(parsedTasks)) {
+      throw new Error("AI response was valid JSON but not an array of tasks.");
+    }
+
     return parsedTasks.map((task: any, index: number) => ({
       ...task,
       id: `task-${index}-${Date.now()}`,
@@ -46,7 +55,8 @@ export const planTasks = async (goal: string): Promise<Task[]> => {
     }));
   } catch (error) {
     console.error("Error planning tasks:", error);
-    throw new Error("Failed to plan tasks. The AI model might have returned an unexpected format.");
+    const errorMessage = error instanceof Error ? `AI Planner Error: ${error.message}` : "An unknown error occurred during planning.";
+    throw new Error(errorMessage);
   }
 };
 
@@ -64,20 +74,18 @@ export const executeTaskStream = async (
         .join('\n');
 
     const prompt = `
-      You are the ${task.agent}.
-      The overall project goal is: "${goal}".
-      Your current task is: "${task.title} - ${task.description}".
-      Previous actions summary for context:
+      You are agent: ${task.agent}.
+      Overall Goal: "${goal}".
+      Your Current Task: "${task.title} - ${task.description}".
+      Recent Activity:
       ${historySummary}
 
-      Now, execute your task. Stream your thought process, actions, and observations in markdown format. 
+      Execute your task. Stream your process in markdown, following this strict format:
+      **Thinking:** Your step-by-step plan.
+      **Action:** The specific action you are taking. For code, use markdown code blocks.
+      **Observation:** The result of your action.
       
-      Your output MUST strictly follow this markdown format, with no exceptions:
-      **Thinking:** Detail your step-by-step plan to tackle the task.
-      **Action:** Describe the specific action you are about to perform. If you are using a tool, mention it (e.g., "Action: Searching the web for 'AI agent frameworks'"). For code, wrap it in markdown code blocks with the language identifier.
-      **Observation:** State the result or outcome of your action.
-
-      Keep your output concise and focused on the current task. Proceed now.
+      Proceed now.
     `;
     
     const responseStream = await ai.models.generateContentStream({

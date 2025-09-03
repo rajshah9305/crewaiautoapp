@@ -103,7 +103,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
   
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-start justify-center pt-20" onClick={onClose}>
-      <div className="w-full max-w-xl bg-surface holographic-border rounded-lg shadow-2xl animate-fadeIn" style={{ animationDuration: '0.2s' }} onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-xl bg-surface border border-border rounded-lg shadow-2xl animate-fadeIn" style={{ animationDuration: '0.2s' }} onClick={e => e.stopPropagation()}>
         <div className="p-3 border-b border-border/50 flex items-center gap-3">
           <CommandIcon className="h-5 w-5 text-secondary"/>
           <input
@@ -127,10 +127,10 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
                 else if (cmd.type === 'action' && cmd.action) cmd.action();
                 onClose();
               }}
-              className={`flex items-center gap-4 p-3 rounded-md cursor-pointer transition-colors ${selectedIndex === index ? 'bg-primary/20 text-primary' : 'hover:bg-surface-light'}`}
+              className={`flex items-center gap-4 p-3 rounded-md cursor-pointer transition-colors ${selectedIndex === index ? 'bg-primary/20 text-accent' : 'hover:bg-surface-light'}`}
               onMouseEnter={() => setSelectedIndex(index)}
             >
-              <div className={selectedIndex === index ? 'text-primary' : 'text-secondary'}>{cmd.icon}</div>
+              <div className={selectedIndex === index ? 'text-accent' : 'text-secondary'}>{cmd.icon}</div>
               <span className="font-sans font-medium">{cmd.title}</span>
             </li>
           )) : (

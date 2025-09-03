@@ -13,11 +13,11 @@ interface AgentStatusProps {
 }
 
 const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime, error }) => {
-  const [elapsedTime, setElapsedTime] = useState('00:00');
+  const [elapsedTime, setElapsedTime] = useState('00:00:00');
 
   useEffect(() => {
     if (!startTime) {
-        setElapsedTime('00:00');
+        setElapsedTime('00:00:00');
         return;
     }
 
@@ -28,9 +28,10 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime, error }) =>
         }
       const now = Date.now();
       const difference = now - startTime;
-      const minutes = Math.floor(difference / 60000);
+      const hours = Math.floor(difference / 3600000);
+      const minutes = Math.floor((difference % 3600000) / 60000);
       const seconds = Math.floor((difference % 60000) / 1000);
-      setElapsedTime(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+      setElapsedTime(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -40,12 +41,12 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime, error }) =>
   const getStatusInfo = () => {
     switch (state) {
       case 'IDLE': return null;
-      case 'PLANNING': return { text: 'PLANNING', color: 'text-primary', icon: <Loader /> };
-      case 'AWAITING_APPROVAL': return { text: 'AWAITING...', color: 'text-accent', icon: <SparklesIcon/> };
+      case 'PLANNING': return { text: 'PLANNING', color: 'text-accent', icon: <Loader /> };
+      case 'AWAITING_APPROVAL': return { text: 'AWAITING CMD', color: 'text-accent', icon: <SparklesIcon/> };
       case 'EXECUTING': return { text: 'EXECUTING', color: 'text-primary', icon: <Loader /> };
       case 'FINALIZING': return { text: 'FINALIZING', color: 'text-accent', icon: <Loader /> };
-      case 'FINISHED': return { text: 'COMPLETE', color: 'text-success', icon: <CheckCircleIcon /> };
-      case 'ERROR': return { text: 'FAILED', color: 'text-error', icon: <XIcon /> };
+      case 'FINISHED': return { text: 'MISSION COMPLETE', color: 'text-success', icon: <CheckCircleIcon /> };
+      case 'ERROR': return { text: 'MISSION FAILED', color: 'text-error', icon: <XIcon /> };
       default: return { text: 'STANDBY', color: 'text-text-secondary', icon: <SparklesIcon/> };
     }
   };
@@ -57,17 +58,17 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime, error }) =>
   const { text, color, icon } = statusInfo;
   
   return (
-    <div className={`bg-surface/80 backdrop-blur-sm border border-border rounded-md px-3 sm:px-4 py-2 flex items-center justify-center gap-3 sm:gap-4 shadow-sm transition-all duration-500`}>
+    <div className={`bg-surface/80 backdrop-blur-sm border border-border/50 rounded-md px-3 sm:px-4 py-2 flex items-center justify-center gap-3 sm:gap-4 shadow-md transition-all duration-500`}>
         <div className="flex items-center gap-2 sm:gap-3">
-            <div className={`h-6 w-6 ${color}`}>
+            <div className={`h-5 w-5 ${color}`}>
                 {React.cloneElement(icon, { className: 'h-full w-full' })}
             </div>
-            <p className={`font-sans text-sm sm:text-base font-semibold tracking-wider ${color}`}>{text}</p>
+            <p className={`font-sans text-sm sm:text-base font-semibold tracking-wider ${color} uppercase`}>{text}</p>
         </div>
         {startTime && (
-             <div className="flex items-center gap-2 text-text-secondary border-l border-border/50 pl-3 sm:pl-4">
+             <div className="flex items-center gap-2 text-text-secondary border-l border-border/30 pl-3 sm:pl-4">
                 <TimerIcon className="h-5 w-5"/>
-                <span className="font-mono text-base sm:text-lg">{elapsedTime}</span>
+                <span className="font-mono text-base sm:text-lg tracking-wider">{elapsedTime}</span>
              </div>
         )}
     </div>

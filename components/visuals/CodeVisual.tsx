@@ -4,21 +4,21 @@ import CodeIcon from '../icons/CodeIcon';
 const styles = `
 .circuit-bg {
   fill: none;
-  stroke: var(--border);
+  stroke: var(--border-color);
   stroke-width: 0.5;
+  opacity: 0.3;
 }
 .conduit-path {
   fill: none;
   stroke: var(--secondary-color);
   stroke-width: 1;
   opacity: 0.5;
-  filter: drop-shadow(0 0 3px var(--glow-color-secondary));
 }
 .energy-particle {
-  fill: var(--primary-color);
-  stroke: #fff;
+  fill: var(--accent-color);
+  stroke: var(--text-primary-color);
   stroke-width: 0.5;
-  filter: drop-shadow(0 0 5px var(--primary-color));
+  filter: drop-shadow(0 0 5px var(--accent-color));
 }
 `;
 
@@ -34,11 +34,11 @@ const CodeVisual: React.FC = () => {
   return (
     <div className="p-3 font-mono">
       <style>{styles}</style>
-      <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs">
-        <CodeIcon className="w-4 h-4 text-secondary" style={{ filter: `drop-shadow(0 0 3px currentColor)` }} />
-        <span>COMPILING LOGIC MATRIX...</span>
+      <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs uppercase">
+        <CodeIcon className="w-4 h-4 text-secondary" />
+        <span>Compiling Logic Matrix...</span>
       </div>
-      <div className="w-full h-24 flex items-center justify-center bg-black/30 overflow-hidden border border-border/50 rounded-md">
+      <div className="w-full h-20 flex items-center justify-center bg-black/30 overflow-hidden border border-border/50 rounded-md">
         <svg viewBox="0 0 200 80" width="200" height="80">
           <defs>
             <pattern id="circuit-pattern" width="20" height="20" patternUnits="userSpaceOnUse">

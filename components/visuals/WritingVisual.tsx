@@ -11,7 +11,7 @@ const styles = `
   animation: draw-line 2s ease-out forwards;
 }
 .data-particle {
-  fill: var(--primary-color);
+  fill: var(--accent-color);
   animation: fade-in-out 2s ease-in-out forwards;
 }
 .resolved-line {
@@ -39,11 +39,11 @@ const WritingVisual: React.FC<{ text: string }> = ({ text }) => {
   return (
     <div className="p-4 font-mono text-xs">
       <style>{styles}</style>
-      <div className="flex items-center gap-2 text-text-secondary mb-3">
-        <WriteIcon className="w-4 h-4 text-secondary" style={{ filter: `drop-shadow(0 0 3px currentColor)` }} />
+      <div className="flex items-center gap-2 text-text-secondary mb-3 uppercase">
+        <WriteIcon className="w-4 h-4 text-secondary" />
         <span>{text}</span>
       </div>
-      <div className="flex h-20">
+      <div className="flex h-16">
         <div className="w-1/3 flex items-center justify-center">
             <svg viewBox="0 0 50 100" className="h-full">
                 {/* 3 incoming streams */}

@@ -103,19 +103,19 @@ const App: React.FC = () => {
     setGoal(missionGoal);
     addLogEntry('User', missionGoal, 'user');
     setAppState('PLANNING');
-    addLogEntry('System', 'Objective received. Calculating mission vectors...', 'system');
+    addLogEntry('System', 'OBJECTIVE RECEIVED. CALCULATING MISSION VECTORS...', 'system');
 
     try {
       const plannedTasks = await agentService.planTasks(missionGoal);
       setTasks(plannedTasks);
-      addLogEntry('System', `Flight plan established with ${plannedTasks.length} waypoints. Awaiting command authorization.`, 'system');
+      addLogEntry('System', `MISSION PLAN ESTABLISHED WITH ${plannedTasks.length} TASKS. AWAITING COMMAND AUTHORIZATION.`, 'system');
       setAppState('AWAITING_APPROVAL');
       setIsSidebarOpen(true);
     } catch (error) {
       const err = error instanceof Error ? error.message : "An unknown error occurred during planning.";
       setErrorMessage(err);
       setAppState('ERROR');
-      addLogEntry('System', `Error during planning: ${err}`, 'error');
+      addLogEntry('System', `CRITICAL_ERROR during planning phase: ${err}`, 'error');
     }
   };
   
@@ -123,7 +123,7 @@ const App: React.FC = () => {
       if (appState !== 'AWAITING_APPROVAL') return;
       setStartTime(Date.now());
       setAppState('EXECUTING');
-      addLogEntry('System', 'Authorization confirmed. Engaging agent crew.', 'system');
+      addLogEntry('System', 'AUTHORIZATION CONFIRMED. ENGAGING AGENT CREW. MISSION IS A GO.', 'system');
       if (window.innerWidth < 768) { // Close sidebar on mobile after launch
           setIsSidebarOpen(false);
       }
@@ -144,7 +144,17 @@ const App: React.FC = () => {
   };
 
   const handleUpdateTask = (updatedTask: Task) => {
-    setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+    setTasks(prev => prev.map(t => {
+        if (t.id === updatedTask.id) {
+            // If we are updating a task that was in an error state,
+            // reset its status to pending so it can be retried after modification.
+            if (t.status === 'error') {
+                return { ...updatedTask, status: 'pending', error: undefined };
+            }
+            return updatedTask;
+        }
+        return t;
+    }));
   };
   
   const handleDeleteTask = (taskId: string) => {
@@ -154,8 +164,8 @@ const App: React.FC = () => {
   const handleAddTask = () => {
     const newTask: Task = {
       id: `task-${tasks.length}-${Date.now()}`,
-      title: 'New Waypoint',
-      description: 'Define the objective for this waypoint.',
+      title: 'New Task',
+      description: 'Define the objective for this task.',
       agent: AGENT_ROLES[0],
       status: 'pending',
     };
@@ -166,20 +176,31 @@ const App: React.FC = () => {
     if (goal && tasks.length > 0) {
         localStorage.setItem('crewai_saved_plan', JSON.stringify({ goal, tasks }));
         setHasSavedPlan(true);
-        addLogEntry('System', 'Mission plan saved to local storage.', 'system');
+        addLogEntry('System', 'Mission plan saved to local archives.', 'system');
     }
   }, [goal, tasks, addLogEntry]);
 
   const loadPlan = useCallback(() => {
     const savedPlan = localStorage.getItem('crewai_saved_plan');
     if (savedPlan) {
+      try {
         resetState();
         const { goal, tasks } = JSON.parse(savedPlan);
-        setGoal(goal);
-        setTasks(tasks);
-        setAppState('AWAITING_APPROVAL');
-        addLogEntry('System', 'Saved mission plan loaded. Please review and launch.', 'system');
-        setIsSidebarOpen(true);
+        if (typeof goal === 'string' && Array.isArray(tasks)) {
+            setGoal(goal);
+            setTasks(tasks);
+            setAppState('AWAITING_APPROVAL');
+            addLogEntry('System', 'Saved mission plan loaded from archives. Review and launch.', 'system');
+            setIsSidebarOpen(true);
+        } else {
+            throw new Error("Saved plan is malformed.");
+        }
+      } catch (error) {
+        console.error("Failed to load saved plan:", error);
+        localStorage.removeItem('crewai_saved_plan');
+        setHasSavedPlan(false);
+        addLogEntry('System', 'Error: Could not load saved plan. The data was corrupted and has been cleared.', 'error');
+      }
     }
   }, [addLogEntry]);
   
@@ -199,7 +220,7 @@ const App: React.FC = () => {
 
         try {
             setTasks(prev => prev.map(t => t.id === currentTask.id ? { ...t, status: 'in-progress' } : t));
-            addLogEntry('System', `Executing waypoint: "${currentTask.title}" // Agent Assigned: ${currentTask.agent}`, 'system');
+            addLogEntry('System', `Executing Task: "${currentTask.title}" // Agent Assigned: ${currentTask.agent}`, 'system');
             addLogEntry(currentTask.agent, ``, 'thought', true);
 
             const agentContextLogs = logEntriesRef.current.filter(e => e.type !== 'user');
@@ -220,11 +241,11 @@ const App: React.FC = () => {
             setTasks(prev => prev.map(t => t.id === currentTask.id ? { ...t, status: 'error', error: err } : t));
             setAppState('ERROR');
             setErrorMessage(err);
-            addLogEntry('System', `Execution failed for task "${currentTask.title}". Halting mission. You may retry the failed task.`, 'error');
+            addLogEntry('System', `Execution failed for task "${currentTask.title}". Halting mission. You may retry or modify the failed task.`, 'error');
         }
 
       } else if (appState === 'EXECUTING' && currentTaskIndex >= tasks.length && tasks.length > 0) {
-        addLogEntry('System', 'All waypoints reached. Compiling final mission debrief.', 'system');
+        addLogEntry('System', 'All tasks complete. Compiling final mission debrief.', 'system');
         setAppState('FINALIZING');
       }
     };
@@ -271,10 +292,10 @@ const App: React.FC = () => {
                         <SidebarToggleIcon/>
                     </button>
                   )}
-                  <div className="flex items-center gap-2 group">
-                      <CrewAILogo className="h-8 w-8 text-primary" style={{ filter: `drop-shadow(0 0 8px var(--primary-color))` }}/>
-                      <h1 className="text-xl md:text-2xl font-bold text-text-primary hidden sm:block uppercase tracking-widest font-sans" style={{ textShadow: '0 0 8px var(--glow-color-primary)' }}>
-                        CrewAI
+                  <div className="flex items-center gap-3 group">
+                      <CrewAILogo className="h-8 w-8 text-text-primary"/>
+                      <h1 className="text-xl md:text-2xl font-bold text-text-primary hidden sm:block uppercase tracking-widest font-sans">
+                        CrewAI Mission Control
                       </h1>
                   </div>
               </div>
@@ -282,7 +303,7 @@ const App: React.FC = () => {
                 <AgentStatus state={appState} error={errorMessage} startTime={startTime} />
               </div>
               {appState !== 'IDLE' && (
-                <button onClick={resetState} className="group bg-error/80 border border-transparent px-3 sm:px-4 py-2 rounded-md flex items-center gap-2 hover:bg-error hover:border-error hover:shadow-[0_0_15px_var(--glow-color-error)] transition-all text-white font-bold active:scale-95">
+                <button onClick={resetState} className="group bg-error/90 border-b-2 border-red-900 px-3 sm:px-4 py-2 rounded-md flex items-center gap-2 hover:bg-error transition-all text-white font-bold active:scale-95 active:border-b-0">
                     <RestartIcon className="h-5 w-5"/>
                     <span className="hidden sm:inline">New Mission</span>
                 </button>
