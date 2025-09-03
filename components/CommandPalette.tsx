@@ -113,7 +113,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
             autoFocus
             className="w-full bg-transparent focus:outline-none text-text-primary placeholder:text-text-secondary"
           />
-           <button onClick={onClose} className="p-1 rounded-full hover:bg-background" aria-label="Close command palette">
+           <button onClick={onClose} className="p-1 rounded-md hover:bg-background" aria-label="Close command palette">
                <XIcon className="h-5 w-5 text-text-secondary"/>
            </button>
         </div>

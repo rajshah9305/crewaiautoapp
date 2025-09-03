@@ -7,7 +7,7 @@ interface MissionStarmapProps {
 }
 
 const statusColors: { [key in TaskStatus]: { fill: string; stroke: string; } } = {
-  'pending': { fill: 'var(--surface-color)', stroke: '#8b949e' },
+  'pending': { fill: 'var(--surface-color)', stroke: '#8B949E' },
   'blocked': { fill: 'var(--bg-color)', stroke: '#484f58' },
   'in-progress': { fill: 'var(--primary-light-color)', stroke: 'var(--primary-color)' },
   'completed': { fill: 'rgba(35, 134, 54, 0.2)', stroke: 'var(--success-color)' },
@@ -52,8 +52,8 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
         levels.push(nodes.filter(node => !assignedNodes.has(node.id)));
     }
 
-    const PADDING_X = 120;
-    const PADDING_Y = 70;
+    const PADDING_X = 130;
+    const PADDING_Y = 80;
     const width = (levels.length) * PADDING_X;
     const maxNodesInLevel = Math.max(1, ...levels.map(l => l.length));
     const height = maxNodesInLevel * PADDING_Y + PADDING_Y;
@@ -91,7 +91,7 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
 
   if (!tasks || tasks.length === 0) {
     return (
-        <div className="bg-surface/80 backdrop-blur-md border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
+        <div className="bg-surface/80 backdrop-blur-sm border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
             <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary mb-4 pb-3 border-b border-border">
                 <StellarCartographyIcon className="h-6 w-6 text-secondary"/> Mission Starmap
             </h2>
@@ -103,7 +103,7 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
   }
 
   return (
-    <div className="bg-surface/80 backdrop-blur-md border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
+    <div className="bg-surface/80 backdrop-blur-sm border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
         <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary mb-4 pb-3 border-b border-border">
             <StellarCartographyIcon className="h-6 w-6 text-secondary"/> Mission Starmap
         </h2>
@@ -111,12 +111,12 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
             {graphData && (
                 <svg width={graphData.width} height={graphData.height} className="min-w-full min-h-full">
                     <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="#484f58" />
-                    </marker>
-                     <marker id="arrowhead-completed" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="var(--success-color)" />
-                    </marker>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="31" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#484f58" />
+                        </marker>
+                         <marker id="arrowhead-completed" markerWidth="10" markerHeight="7" refX="31" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--success-color)" />
+                        </marker>
                     </defs>
                     <g>
                     {graphData.edges.map(edge => (
@@ -125,7 +125,7 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                         d={edge.path}
                         fill="none"
                         stroke={edge.status === 'completed' ? 'var(--success-color)' : '#484f58'}
-                        strokeWidth="1.5"
+                        strokeWidth={edge.status === 'completed' ? 2 : 1.5}
                         markerEnd={edge.status === 'completed' ? 'url(#arrowhead-completed)' : 'url(#arrowhead)'}
                         className="transition-all duration-300"
                         />
@@ -136,20 +136,20 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                         const colors = statusColors[node.status] || statusColors.pending;
                         const isPulsing = node.status === 'in-progress';
                         return (
-                        <g key={node.id} transform={`translate(${x}, ${y})`}>
-                            <title>{`[${index}] ${node.title} - Status: ${node.status}`}</title>
+                        <g key={node.id} transform={`translate(${x}, ${y})`} className="cursor-pointer group">
+                            <title>{`[Task ${index}] ${node.title}\n\nStatus: ${node.status.toUpperCase()}\nAgent: ${node.agent}\n\nDescription:\n${node.description}\n\nDependencies: ${node.dependencies.join(', ') || 'None'}`}</title>
                              <circle
-                                r={16}
+                                r={22}
                                 fill={colors.fill}
                                 stroke={colors.stroke}
                                 strokeWidth="2"
-                                className={`transition-all duration-300 ${isPulsing ? 'node-in-progress' : ''}`}
+                                className={`transition-all duration-300 group-hover:stroke-width-4 ${isPulsing ? 'node-in-progress' : ''}`}
                             />
                             <text
                                 textAnchor="middle"
                                 dy=".3em"
                                 fill="var(--text-primary-color)"
-                                fontSize="12"
+                                fontSize="13"
                                 fontWeight="bold"
                                 className="pointer-events-none select-none font-mono"
                             >

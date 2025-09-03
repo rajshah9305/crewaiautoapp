@@ -1,10 +1,22 @@
 import React from 'react';
 
 const SaveIcon: React.FC<{ className?: string, style?: React.CSSProperties }> = ({ className, style }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className} style={style}>
-      <path d="M3 3.5A1.5 1.5 0 014.5 2h6.879a1.5 1.5 0 011.06.44l4.122 4.12A1.5 1.5 0 0117 7.622V16.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 16.5v-13z" opacity="0.3"/>
-      <path d="M8 13.5a1.5 1.5 0 001.5 1.5h1a1.5 1.5 0 001.5-1.5v-3A1.5 1.5 0 0010.5 9h-1A1.5 1.5 0 008 10.5v3z" />
-      <path d="M12.5 2.5a.5.5 0 01.5.5v3a.5.5 0 01-.5.5h-5a.5.5 0 01-.5-.5v-3a.5.5 0 01.5-.5h5z" />
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="1.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className={className} 
+        style={style}
+    >
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+        <polyline points="17 21 17 13 7 13 7 21" />
+        <polyline points="7 3 7 8 15 8" />
     </svg>
 );
 

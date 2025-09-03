@@ -1,9 +1,22 @@
 import React from 'react';
 
 const AddIcon: React.FC<{ className?: string, style?: React.CSSProperties }> = ({ className, style }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className} style={style}>
-    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16z" clipRule="evenodd" opacity="0.3" />
-    <path d="M10.75 9.25V5a.75.75 0 00-1.5 0v4.25H5a.75.75 0 000 1.5h4.25V15a.75.75 0 001.5 0v-4.25H15a.75.75 0 000-1.5h-4.25z" />
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="1.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className} 
+    style={style}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 12h8" />
+    <path d="M12 8v8" />
   </svg>
 );
 

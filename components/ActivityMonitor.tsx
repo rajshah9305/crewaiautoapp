@@ -5,7 +5,7 @@ import ResearchVisual from './visuals/ResearchVisual';
 import WritingVisual from './visuals/WritingVisual';
 import { AGENT_AVATARS } from './agent-config';
 import DotIcon from './icons/DotIcon';
-import Loader from './Loader';
+import CubeIcon from './icons/CubeIcon';
 import LiveMarkdownRenderer from './LiveMarkdownRenderer';
 
 // A map to get the correct visual component for an agent.
@@ -41,8 +41,8 @@ const ResourceMeter: React.FC<{ label: string, value: number, color: string }> =
         </div>
         <div className="w-full bg-black/30 rounded-full h-1.5 overflow-hidden">
             <div 
-                className="h-full rounded-full animate-fill-bar" 
-                style={{ width: `${value}%`, backgroundColor: color, transformOrigin: 'left' }}
+                className="h-full rounded-full transition-all duration-300" 
+                style={{ width: `${value}%`, backgroundColor: color }}
             />
         </div>
     </div>
@@ -56,6 +56,8 @@ const AgentCard: React.FC<{ task: Task; streamingLog: LogEntry | undefined }> = 
     const [resources, setResources] = useState({ cpu: 10, cognition: 10, network: 10 });
     
     useEffect(() => {
+        if (!streamingLog) return;
+        
         const decay = (prev: number) => Math.max(10, prev * 0.95);
         
         const update = () => {
@@ -75,11 +77,11 @@ const AgentCard: React.FC<{ task: Task; streamingLog: LogEntry | undefined }> = 
 
         const interval = setInterval(update, 300);
         return () => clearInterval(interval);
-    }, [streamingLog?.content]);
+    }, [streamingLog]);
 
 
     return (
-        <div className="bg-surface/90 backdrop-blur-sm border border-border rounded-xl shadow-lg overflow-hidden animate-fadeInUp">
+        <div className="bg-surface/80 backdrop-blur-sm border border-border rounded-xl shadow-lg overflow-hidden animate-fadeInUp">
             <div className="p-4 border-b border-border bg-background/50">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-surface flex items-center justify-center border border-border">
@@ -101,12 +103,12 @@ const AgentCard: React.FC<{ task: Task; streamingLog: LogEntry | undefined }> = 
                     ) : <div className="h-full min-h-[250px] bg-surface rounded-md border border-border"/>}
                 </div>
                 <div className="lg:col-span-2 text-sm font-mono text-text-secondary relative flex flex-col p-2">
-                    <div className="relative flex-1 flex flex-col bg-surface/80 rounded-md border border-border p-3 overflow-hidden min-h-[250px]">
+                    <div className="relative flex-1 flex flex-col bg-surface rounded-md border border-border p-3 overflow-hidden min-h-[250px]">
                         <p className="font-sans font-semibold text-xs text-text-secondary uppercase tracking-wider mb-2 flex-shrink-0">Live Log Stream</p>
                         <div className="overflow-y-auto pr-2 flex-1 animate-crt-flicker">
                             <LiveMarkdownRenderer content={streamingContent} />
                         </div>
-                        <div className="absolute inset-0 bg-black/20 pointer-events-none" style={{ background: 'linear-gradient(rgba(13, 17, 23, 0) 95%, rgba(13, 17, 23, 1))' }}/>
+                        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/0 to-surface/0 pointer-events-none" />
                     </div>
                 </div>
             </div>
@@ -135,12 +137,31 @@ const ActivityMonitor: React.FC<ActivityMonitorProps> = ({ tasks, logEntries }) 
 
     if (activeTasks.length === 0) {
         return (
-             <div className="flex flex-col items-center justify-center h-full text-center p-4 animate-fadeInUp text-text-secondary">
-                <div className="p-4 bg-surface rounded-full border border-border mb-4">
-                    <Loader />
+             <div className="flex flex-col items-center justify-center h-full text-center p-4 animate-fadeInUp text-text-secondary w-full max-w-lg mx-auto">
+                <div className="relative w-48 h-48 flex items-center justify-center mb-6">
+                    <svg className="absolute w-full h-full" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="grad-orbit" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style={{stopColor: 'var(--primary-color)', stopOpacity: 0}} />
+                            <stop offset="100%" style={{stopColor: 'var(--primary-color)', stopOpacity: 1}} />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border-color)" strokeWidth="0.5" strokeDasharray="2 2" />
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="url(#grad-orbit)" strokeWidth="1.5" strokeDasharray="50 200" strokeLinecap="round">
+                            <animateTransform
+                                attributeName="transform"
+                                type="rotate"
+                                from="0 50 50"
+                                to="360 50 50"
+                                dur="10s"
+                                repeatCount="indefinite"
+                            />
+                        </circle>
+                    </svg>
+                    <CubeIcon className="h-12 w-12 text-primary opacity-80 animate-pulse" style={{ animationDelay: '0.5s', animationDuration: '2s' }}/>
                 </div>
-                <h2 className="text-lg font-semibold text-text-primary">Executing Mission</h2>
-                <p>Standing by for next available task...</p>
+                <h2 className="text-lg font-semibold text-text-primary">Standing By</h2>
+                <p>Awaiting next available task in the execution queue.</p>
             </div>
         )
     }

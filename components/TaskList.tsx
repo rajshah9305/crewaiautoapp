@@ -42,22 +42,23 @@ const TaskStatusIcon: React.FC<{ status: TaskStatus }> = ({ status }) => {
     case 'in-progress':
       return <SparklesIcon className="h-5 w-5 text-accent animate-pulse" />;
     case 'pending':
-      return <DotIcon className="h-5 w-5 text-text-secondary opacity-40" />;
+      return <DotIcon className="h-5 w-5 text-text-secondary opacity-50" />;
     case 'error':
       return <XIcon className="h-5 w-5 text-error" />;
     case 'blocked':
-      return <LockIcon className="h-5 w-5 text-text-secondary opacity-50" />;
+      return <LockIcon className="h-5 w-5 text-text-secondary opacity-60" />;
     default:
-      return <DotIcon className="h-5 w-5 text-text-secondary opacity-40" />;
+      return <DotIcon className="h-5 w-5 text-text-secondary opacity-50" />;
   }
 };
 
 const PreflightCheck: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     const checks = ["Verifying Agent Protocols", "Calibrating Task Vectors", "Synchronizing Heuristics", "Engaging Crew"];
     const [currentCheck, setCurrentCheck] = useState(0);
+    const isComplete = currentCheck >= checks.length;
 
     useEffect(() => {
-        if (currentCheck >= checks.length) {
+        if (isComplete) {
             const timer = setTimeout(onComplete, 500);
             return () => clearTimeout(timer);
         }
@@ -66,10 +67,16 @@ const PreflightCheck: React.FC<{ onComplete: () => void }> = ({ onComplete }) =>
             setCurrentCheck(c => c + 1);
         }, 450);
         return () => clearTimeout(timer);
-    }, [currentCheck, checks.length, onComplete]);
+    }, [currentCheck, checks.length, onComplete, isComplete]);
 
     return (
-        <div className="flex flex-col items-center justify-center h-full p-6 text-text-primary">
+        <div className="relative flex flex-col items-center justify-center h-full p-6 text-text-primary overflow-hidden">
+             {isComplete && (
+                <div 
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-shimmer" 
+                    style={{ backgroundSize: '200% 100%', animationDuration: '1.5s', animationIterationCount: 1 }}
+                />
+            )}
             <h3 className="text-xl font-semibold text-primary mb-8">Pre-Launch Sequence</h3>
             <div className="space-y-4 w-full text-left text-sm">
                 {checks.map((check, index) => (
@@ -137,12 +144,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
   };
 
   return (
-    <div className="bg-surface/80 backdrop-blur-md border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
+    <div className="bg-surface/80 backdrop-blur-sm border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
         <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary"><TaskListIcon className="h-6 w-6 text-secondary"/> Crew Manifest</h2>
       </div>
       
-      <div className="w-full bg-background rounded-full h-2 my-2 overflow-hidden border border-border">
+      <div className="w-full bg-background rounded-full h-2 mb-2 overflow-hidden border border-border">
           <div className="bg-primary h-full rounded-full" style={{ width: `${progress}%`, transition: 'width 0.5s ease-in-out' }}></div>
       </div>
 
@@ -156,27 +163,29 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                     if (agent.tasks.some(t => t.status === 'in-progress')) return { text: 'ACTIVE', color: 'text-accent', dot: 'bg-accent' };
                     if (agent.tasks.some(t => t.status === 'error')) return { text: 'ERROR', color: 'text-error', dot: 'bg-error' };
                     if (agent.tasks.length > 0 && agent.tasks.every(t => t.status === 'completed')) return { text: 'NOMINAL', color: 'text-success', dot: 'bg-success' };
-                    if (agent.tasks.length > 0 && agent.tasks.every(t => t.status === 'completed' || t.status === 'blocked')) return { text: 'BLOCKED', color: 'text-text-secondary', dot: 'bg-gray-400' };
-                    return { text: 'STANDBY', color: 'text-text-secondary', dot: 'bg-gray-400' };
+                    if (agent.tasks.length > 0 && agent.tasks.every(t => t.status === 'blocked')) return { text: 'BLOCKED', color: 'text-text-secondary', dot: 'bg-text-secondary' };
+                    return { text: 'STANDBY', color: 'text-text-secondary', dot: 'bg-text-secondary' };
                 };
                 const agentStatus = getAgentStatus(agent);
 
                 return (
-                    <li key={agent.name} className={`bg-background/50 border border-border rounded-lg p-3 transition-all duration-300 ${isAnyTaskActive ? 'border-accent shadow-glow' : ''} ${agent.tasks.some(t => t.status === 'error') ? '!border-error' : ''}`}>
-                        <div className="flex items-center gap-3 mb-3">
-                           <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center border border-border"><agent.icon className="h-5 w-5 text-secondary" /></div>
-                           <h3 className="font-semibold text-text-primary flex-1 truncate" title={agent.name}>{agent.name}</h3>
-                           <div title={`Agent status: ${agentStatus.text}`} className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${agentStatus.color} transition-colors`}>
-                                <span className={`w-2 h-2 rounded-full ${agentStatus.dot} ${isAnyTaskActive ? 'animate-pulse' : ''}`}></span>
+                    <li key={agent.name} className={`bg-background/50 border border-border rounded-lg transition-all duration-300 ${isAnyTaskActive ? 'border-accent shadow-glow' : ''} ${agent.tasks.some(t => t.status === 'error') ? '!border-error' : ''}`}>
+                        <div className="flex items-center justify-between p-3 bg-gradient-to-b from-surface/80 to-surface/50 rounded-t-lg border-b border-border">
+                            <div className="flex items-center gap-3 min-w-0">
+                               <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center border border-border flex-shrink-0"><agent.icon className="h-5 w-5 text-secondary" /></div>
+                               <h3 className="font-semibold text-text-primary flex-1 truncate" title={agent.name}>{agent.name}</h3>
+                            </div>
+                           <div title={`Agent status: ${agentStatus.text}`} className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-full ${agentStatus.color} bg-background transition-colors`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${agentStatus.dot} ${isAnyTaskActive ? 'animate-pulse' : ''}`}></span>
                                 <span>{agentStatus.text}</span>
                             </div>
                         </div>
-                        <ul className="space-y-1.5 pl-2 border-l-2 border-surface">
+                        <ul className="space-y-1 p-2">
                             {agent.tasks.map(task => {
                                 const isEditing = editingTaskId === task.id;
                                 if (isEditing) {
                                     return (
-                                        <li key={task.id} className="flex flex-col gap-2 p-3 bg-surface ring-2 ring-accent rounded-md ml-2">
+                                        <li key={task.id} className="flex flex-col gap-2 p-3 bg-surface ring-2 ring-accent rounded-md">
                                             <input 
                                                 type="text" 
                                                 value={editedTask.title} 
@@ -202,7 +211,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                                     )
                                 }
                                 return (
-                                    <li key={task.id} className="group/task flex flex-col text-sm p-1.5 rounded-md hover:bg-surface/50 ml-2">
+                                    <li key={task.id} className="group/task flex flex-col text-sm p-2 rounded-md hover:bg-surface/50">
                                         <div className="flex items-start gap-3 w-full">
                                             <div className="mt-0.5 flex-shrink-0"><TaskStatusIcon status={task.status} /></div>
                                             <div className="flex-1 min-w-0">

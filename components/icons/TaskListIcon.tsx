@@ -1,9 +1,25 @@
 import React from 'react';
 
 const TaskListIcon: React.FC<{ className?: string, style?: React.CSSProperties }> = ({ className, style }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className} style={style}>
-    <path d="M3.5 3A1.5 1.5 0 002 4.5v11A1.5 1.5 0 003.5 17h13a1.5 1.5 0 001.5-1.5v-11A1.5 1.5 0 0016.5 3h-13z" opacity="0.3"/>
-    <path d="M14 7a1 1 0 11-2 0 1 1 0 012 0zM5 7a1 1 0 100 2h4a1 1 0 100-2H5zm0 4a1 1 0 100 2h4a1 1 0 100-2H5z" />
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="1.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className} 
+    style={style}
+  >
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <path d="M12 11h4" />
+    <path d="M12 16h4" />
+    <path d="M8 11h.01" />
+    <path d="M8 16h.01" />
   </svg>
 );
 

@@ -1,9 +1,24 @@
 import React from 'react';
 
 const StellarCartographyIcon: React.FC<{ className?: string, style?: React.CSSProperties }> = ({ className, style }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className} style={style}>
-      <path d="M10 3.5a1.5 1.5 0 011.5 1.5v1.5a.75.75 0 001.5 0V5A3 3 0 0010 2a3 3 0 00-3 3v1.5a.75.75 0 001.5 0V5a1.5 1.5 0 011.5-1.5zM3.25 10a1.5 1.5 0 011.5-1.5h1.5a.75.75 0 000-1.5H4.75A3 3 0 001.75 10a3 3 0 003 3h1.5a.75.75 0 000-1.5H4.75a1.5 1.5 0 01-1.5-1.5z" opacity="0.3"/>
-      <path d="M10 16.5a1.5 1.5 0 01-1.5-1.5V13.5a.75.75 0 00-1.5 0V15a3 3 0 003 3a3 3 0 003-3v-1.5a.75.75 0 00-1.5 0V15a1.5 1.5 0 01-1.5 1.5zM16.75 10a1.5 1.5 0 01-1.5 1.5h-1.5a.75.75 0 000 1.5h1.5a3 3 0 003-3a3 3 0 00-3-3h-1.5a.75.75 0 000 1.5h1.5a1.5 1.5 0 011.5 1.5z" />
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="1.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className={className} 
+        style={style}
+    >
+        <rect x="16" y="16" width="6" height="6" rx="1" />
+        <rect x="2" y="16" width="6" height="6" rx="1" />
+        <rect x="9" y="2" width="6" height="6" rx="1" />
+        <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" />
+        <path d="M12 12V8" />
     </svg>
 );
 

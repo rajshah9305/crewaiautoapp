@@ -7,15 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       :root {
-        /* Elite & Feature-Rich Color Palette - "Command Center" Dark Theme */
-        --bg-color: #0A0E13;
-        --surface-color: #1A1F26;
-        --border-color: #2A3039;
-        --primary-color: #FBBF24; /* Amber 400 */
-        --primary-light-color: rgba(251, 191, 36, 0.1);
-        --cta-color: #FBBF24; /* Amber 400 */
-        --text-primary-color: #E6EDF3;
-        --text-secondary-color: #8D96A0;
+        /* Elite & Feature-Rich Color Palette - "Command Center" Dark Theme v2 */
+        --bg-color: #0D1117;
+        --surface-color: #161B22;
+        --border-color: #30363D;
+        --primary-color: #F7B224; /* Richer Amber */
+        --primary-light-color: rgba(247, 178, 36, 0.1);
+        --cta-color: #F7B224;
+        --text-primary-color: #C9D1D9;
+        --text-secondary-color: #8B949E;
         --success-color: #238636;
         --error-color: #DA3633;
         
@@ -24,10 +24,10 @@
         --cognition-color: #A78BFA; /* Violet 400 */
         --network-color: #4ADE80; /* Green 400 */
 
-        --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.15);
-        --shadow-sm: 0 2px 4px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
-        --shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.25), 0 2px 4px -2px rgb(0 0 0 / 0.25);
-        --shadow-lg: 0 10px 20px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+        --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.35), 0 4px 6px -4px rgb(0 0 0 / 0.35);
       }
 
       body {
@@ -35,9 +35,11 @@
         color: var(--text-primary-color);
         overflow: hidden; /* Prevent body scroll, panels will scroll instead */
         background-image:
-          linear-gradient(rgba(42, 48, 57, 0.5) 1px, transparent 1px),
-          linear-gradient(to right, rgba(42, 48, 57, 0.5) 1px, var(--bg-color) 1px);
-        background-size: 30px 30px;
+          radial-gradient(ellipse 80% 80% at 50% 120%, rgba(247, 178, 36, 0.1), transparent),
+          radial-gradient(ellipse at center, rgba(22, 27, 34, 0.5) 0%, var(--bg-color) 70%),
+          linear-gradient(rgba(48, 54, 61, 0.3) 1px, transparent 1px),
+          linear-gradient(to right, rgba(48, 54, 61, 0.3) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
       }
 
       /* Custom Selections */
@@ -52,7 +54,7 @@
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: var(--bg-color);
+        background: transparent;
       }
       ::-webkit-scrollbar-thumb {
         background: #484f58;
@@ -122,12 +124,20 @@
               'pulse-node-glow': {
                   '0%, 100%': {
                       transform: 'scale(1)',
-                      filter: 'drop-shadow(0 0 3px var(--primary-color))'
+                      filter: 'drop-shadow(0 0 2px var(--primary-color))'
                   },
                   '50%': {
                       transform: 'scale(1.05)',
-                      filter: 'drop-shadow(0 0 8px var(--primary-color))'
+                      filter: 'drop-shadow(0 0 6px var(--primary-color))'
                   }
+              },
+              'shimmer': {
+                  '0%': { background-position: '-200% 0' },
+                  '100%': { background-position: '200% 0' },
+              },
+              'focus-glow': {
+                '0%, 100%': { 'box-shadow': '0 0 8px 2px rgba(247, 178, 36, 0.2)' },
+                '50%': { 'box-shadow': '0 0 12px 4px rgba(247, 178, 36, 0.4)' },
               }
             },
             animation: {
@@ -137,13 +147,16 @@
               blink: 'blink 1s step-end infinite',
               'fill-bar': 'fill-bar 0.5s ease-out forwards',
               'crt-flicker': 'crt-flicker 0.15s infinite',
+              'shimmer': 'shimmer 1.5s infinite',
+              'focus-glow': 'focus-glow 2s infinite ease-in-out',
             },
             boxShadow: {
                 'xs': 'var(--shadow-xs)',
                 'sm': 'var(--shadow-sm)',
                 'md': 'var(--shadow-md)',
                 'lg': 'var(--shadow-lg)',
-                'glow': '0 0 15px -3px rgb(251 191 36 / 0.3)',
+                'glow': '0 0 15px -3px rgb(247 178 36 / 0.3)',
+                'inner-glow': 'inset 0 0 10px 0 rgb(247 178 36 / 0.2)',
             }
           }
         }

@@ -26,7 +26,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ onSelectTemplate, onLoadPla
                     key={template.title}
                     onClick={() => onSelectTemplate(template.prompt)}
                     disabled={isLoading}
-                    className="group bg-surface border border-border p-4 rounded-lg text-text-primary hover:border-accent hover:bg-background hover:shadow-md transition-all duration-200 disabled:opacity-50 flex items-center gap-4 w-full text-left"
+                    className="group bg-surface border border-border p-4 rounded-lg text-text-primary hover:border-accent hover:bg-surface/50 hover:shadow-md transition-all duration-200 disabled:opacity-50 flex items-center gap-4 w-full text-left"
                 >
                     <div className="flex-shrink-0 bg-background p-2 rounded-md border border-border shadow-sm">
                         {React.cloneElement(template.icon, { className: `h-6 w-6 text-secondary group-hover:text-accent transition-colors duration-200` })}
@@ -42,7 +42,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ onSelectTemplate, onLoadPla
             <button
                 onClick={onLoadPlan}
                 disabled={isLoading}
-                className="group mt-2 w-full bg-primary-light/10 border border-dashed border-primary/50 p-3 rounded-lg text-primary hover:border-primary hover:bg-primary-light/20 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-3"
+                className="group mt-2 w-full bg-primary-light border border-dashed border-primary/50 p-3 rounded-lg text-primary hover:border-primary hover:bg-primary-light/80 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-3"
             >
                 <SaveIcon className="h-5 w-5"/>
                 <span className="font-semibold">Load Saved Mission Plan</span>
