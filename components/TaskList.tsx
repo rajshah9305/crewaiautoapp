@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { AppState, Task, TaskStatus } from '../types';
 import { AGENT_ROLES } from '../constants';
@@ -166,8 +164,9 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
         <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary"><TaskListIcon className="h-6 w-6 text-secondary"/> Crew Manifest</h2>
       </div>
       
-      <div className="w-full bg-background rounded-full h-2 mb-2 overflow-hidden border border-border">
+      <div className="w-full bg-background rounded-full h-2 mb-2 overflow-hidden border border-border relative">
           <div className="bg-primary h-full rounded-full" style={{ width: `${progress}%`, transition: 'width 0.5s ease-in-out' }}></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2 -mr-4 relative py-2">
@@ -236,15 +235,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                                 return (
                                     <li key={task.id} className="group/task flex flex-col text-sm p-2 rounded-md hover:bg-surface/50">
                                         <div className="flex items-start gap-3 w-full">
-                                            <div className="mt-1 flex-shrink-0" title={`Assigned to: ${agent.name}`}>
-                                                <agent.icon className="h-5 w-5 text-text-secondary" />
+                                            <div className="mt-0.5 flex-shrink-0">
+                                                <TaskStatusIcon status={task.status} />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <TaskStatusIcon status={task.status} />
-                                                    <p className="text-text-primary font-medium">{task.title}</p>
-                                                </div>
-                                                <p className="text-text-secondary text-xs mt-0.5 ml-7">{task.description}</p>
+                                                <p className="text-text-primary font-medium">{task.title}</p>
+                                                <p className="text-text-secondary text-xs mt-0.5">{task.description}</p>
                                             </div>
                                             <div className="flex items-center gap-0 opacity-0 group-hover/task:opacity-100 transition-opacity">
                                                 {(isPlanEditable || task.status === 'error') && (
@@ -254,7 +250,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                                                     <button aria-label="Delete Task" onClick={() => onDeleteTask(task.id)} className="p-1 rounded-md hover:bg-border"><DeleteIcon className="h-4 w-4 text-error"/></button>
                                                 )}
                                                 {task.status === 'error' && (
-                                                     <button aria-label="Retry Task" onClick={() => onRetryTask(task.id)} className="p-1 rounded-md hover:bg-border"><RestartIcon className="h-4 w-4 text-primary"/></button>
+                                                     <button aria-label="Retry Task" onClick={() => { onRetryTask(task.id); }} className="p-1 rounded-md hover:bg-border"><RestartIcon className="h-4 w-4 text-primary"/></button>
                                                 )}
                                             </div>
                                         </div>
@@ -281,11 +277,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
       {isPlanEditable && !isApproving && (
           <div className="mt-auto pt-4 border-t border-border flex flex-col gap-3">
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={onAddTask} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-text-secondary/50 transition-colors group active:scale-95">
+                <button onClick={() => { onAddTask(); }} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-text-secondary/50 transition-colors group active:scale-95">
                     <AddIcon className="h-5 w-5" />
                     <span>Add Task</span>
                 </button>
-                 <button onClick={onSavePlan} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-text-secondary/50 transition-colors group active:scale-95">
+                 <button onClick={() => { onSavePlan(); }} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-text-secondary/50 transition-colors group active:scale-95">
                     <SaveIcon className="h-5 w-5" />
                     <span>Save Plan</span>
                 </button>

@@ -44,7 +44,10 @@ const MissionBriefing: React.FC<MissionBriefingProps> = ({
     return (
         <div className="flex flex-col h-full w-full max-w-5xl mx-auto justify-center">
             <div className="flex flex-col items-center justify-center text-center p-4 animate-fadeInUp">
-                <CrewAILogo className="h-24 w-24 text-primary opacity-80" />
+                <div className="relative">
+                    <div className="absolute -inset-2 bg-primary/20 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <CrewAILogo className="relative h-24 w-24 text-primary opacity-90" />
+                </div>
                 <h1 className="text-4xl font-bold text-text-primary mt-6 tracking-tight">
                     Define Your Mission
                 </h1>

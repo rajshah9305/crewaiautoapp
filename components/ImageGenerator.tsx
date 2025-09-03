@@ -62,7 +62,7 @@ const ImageGenerator: React.FC = () => {
                     <button
                         onClick={handleGenerate}
                         disabled={isLoading || !prompt.trim()}
-                        className="w-full flex items-center justify-center gap-2 bg-cta text-black font-bold text-base py-3 px-4 rounded-lg transition-all duration-200 hover:bg-amber-500 active:scale-95 shadow-md hover:shadow-lg hover:shadow-primary/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full flex items-center justify-center gap-2 bg-cta text-white font-bold text-base py-3 px-4 rounded-lg transition-all duration-200 hover:brightness-110 active:scale-95 shadow-md hover:shadow-lg hover:shadow-glow-cta disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <SparklesIcon className="h-5 w-5" />
                         <span>{isLoading ? 'Generating...' : 'Generate Image'}</span>

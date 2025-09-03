@@ -21,4 +21,4 @@ export interface LogEntry {
   isStreaming?: boolean;
 }
 
-export type AppState = 'IDLE' | 'PLANNING' | 'AWAITING_APPROVAL' | 'EXECUTING' | 'FINALIZING' | 'FINISHED' | 'ERROR';
+export type AppState = 'IDLE' | 'PLANNING' | 'AWAITING_APPROVAL' | 'EXECUTING' | 'PAUSING_BETWEEN_TASKS' | 'FINALIZING' | 'FINISHED' | 'ERROR';

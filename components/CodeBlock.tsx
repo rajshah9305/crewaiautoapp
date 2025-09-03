@@ -26,7 +26,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
                 <span className="font-sans font-semibold text-text-secondary uppercase tracking-wider">{language || 'CODE'}</span>
                 <button
                     onClick={handleCopy}
-                    className="flex items-center gap-1.5 text-secondary hover:text-text-primary transition-colors text-xs font-semibold"
+                    className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-colors text-xs font-semibold"
                     aria-label={isCopied ? 'Copied to clipboard' : 'Copy code'}
                 >
                     {isCopied ? (
@@ -44,7 +44,15 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
             </div>
             <div className="p-4 text-sm overflow-x-auto">
                 <pre className="whitespace-pre-wrap break-words font-mono">
-                    <code className="text-text-primary">{code.trim()}</code>
+                    <code className="text-text-primary" dangerouslySetInnerHTML={{
+                        __html: code.trim()
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;")
+                            .replace(/(const|let|var|function|return|import|from|export|default|async|await|new|if|else|for|while|switch|case|break|continue)/g, '<span class="text-cta">$1</span>')
+                            .replace(/(\'|\"|\`)(.*?)(\'|\"|\`)/g, '<span class="text-amber-400">$1$2$3</span>')
+                            .replace(/(\(|\)|\{|\}|\[|\])/g, '<span class="text-text-secondary">$1</span>')
+                            .replace(/(\/\/.*|\/\*[\s\S]*?\*\/)/g, '<span class="text-gray-500">$1</span>')
+                    }}/>
                 </pre>
             </div>
         </div>

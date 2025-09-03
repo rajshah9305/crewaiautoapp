@@ -87,15 +87,14 @@ You must adhere to the following rules:
  * @param goal The overall mission goal.
  * @param logHistory A history of previous logs for context.
  * @param onChunk Callback for each streamed chunk of text.
- * @param onComplete Callback for when the stream is finished.
+ * @returns A promise that resolves when the stream is finished.
  */
 export const executeTaskStream = async (
   task: Task,
   goal: string,
   logHistory: LogEntry[],
-  onChunk: (chunk: string, agent: string) => void,
-  onComplete: () => void
-) => {
+  onChunk: (chunk: string, agent: string) => void
+): Promise<void> => {
   try {
     const historySummary = logHistory
         .slice(-5)
@@ -120,11 +119,10 @@ Execute your task. Stream your thought process and actions in Markdown format. U
     for await (const chunk of responseStream) {
       onChunk(chunk.text, task.agent);
     }
-    onComplete();
   } catch (error) {
     console.error(`Error executing task stream for ${task.agent}:`, error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred during execution.";
-    onChunk(`\n**Error:** Task execution failed. Reason: ${errorMessage}`, 'System');
+    // Let the calling component (App.tsx) handle UI feedback for the error.
+    // This prevents duplicate error messages in the log.
     throw error;
   }
 };

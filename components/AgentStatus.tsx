@@ -41,13 +41,14 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime }) => {
   const getStatusInfo = () => {
     switch (state) {
       case 'IDLE': return null;
-      case 'PLANNING': return { text: 'Planning Mission...', color: 'text-text-primary', icon: <Loader /> };
-      case 'AWAITING_APPROVAL': return { text: 'Plan Ready for Review', color: 'text-primary', icon: <SparklesIcon/> };
-      case 'EXECUTING': return { text: 'Executing...', color: 'text-text-primary', icon: <Loader /> };
-      case 'FINALIZING': return { text: 'Finalizing...', color: 'text-primary', icon: <Loader /> };
-      case 'FINISHED': return { text: 'Mission Complete', color: 'text-success', icon: <CheckCircleIcon /> };
-      case 'ERROR': return { text: 'Mission Failed', color: 'text-error', icon: <XIcon /> };
-      default: return { text: 'Standby', color: 'text-secondary', icon: <SparklesIcon/> };
+      case 'PLANNING': return { text: 'Planning Mission...', color: 'text-text-primary', icon: <Loader />, glow: 'shadow-primary/30' };
+      case 'AWAITING_APPROVAL': return { text: 'Plan Ready for Review', color: 'text-primary', icon: <SparklesIcon/>, glow: 'shadow-primary/40' };
+      case 'EXECUTING': return { text: 'Executing...', color: 'text-text-primary', icon: <Loader />, glow: 'shadow-primary/30 animate-pulse' };
+      case 'PAUSING_BETWEEN_TASKS': return { text: 'Switching Tasks...', color: 'text-text-secondary', icon: <TimerIcon />, glow: 'shadow-border' };
+      case 'FINALIZING': return { text: 'Finalizing...', color: 'text-primary', icon: <Loader />, glow: 'shadow-primary/40' };
+      case 'FINISHED': return { text: 'Mission Complete', color: 'text-success', icon: <CheckCircleIcon />, glow: 'shadow-success/40' };
+      case 'ERROR': return { text: 'Mission Failed', color: 'text-error', icon: <XIcon />, glow: 'shadow-error/40' };
+      default: return { text: 'Standby', color: 'text-secondary', icon: <SparklesIcon/>, glow: 'shadow-border' };
     }
   };
 
@@ -55,10 +56,11 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime }) => {
 
   if (!statusInfo) return null;
 
-  const { text, color, icon } = statusInfo;
+  const { text, color, icon, glow } = statusInfo;
   
   return (
-    <div className={`flex items-center justify-center gap-2 transition-all duration-300`}>
+    <div className={`relative flex items-center justify-center gap-2 transition-all duration-300 p-2 rounded-lg`}>
+        <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-current to-transparent opacity-10 ${color} ${state === 'EXECUTING' ? 'animate-pulse' : ''}`} />
         <div className="flex items-center gap-2">
             <div className={`h-5 w-5 ${state === 'PLANNING' || state === 'EXECUTING' || state === 'FINALIZING' ? 'text-primary' : color}`}>
                 {React.cloneElement(icon, { className: 'h-full w-full' })}

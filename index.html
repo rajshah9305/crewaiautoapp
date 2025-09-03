@@ -1,25 +1,100 @@
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.16.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "marked": "https://aistudiocdn.com/marked@^16.2.1"
+  }
+}
+</script>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CrewAI Mission Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              background: 'var(--bg-color)',
+              surface: 'var(--surface-color)',
+              border: 'var(--border-color)',
+              primary: 'var(--primary-color)',
+              'primary-light': 'var(--primary-light-color)',
+              cta: 'var(--cta-color)',
+              'text-primary': 'var(--text-primary-color)',
+              'text-secondary': 'var(--text-secondary-color)',
+              success: 'var(--success-color)',
+              error: 'var(--error-color)',
+              accent: 'var(--primary-color)', // alias for consistency
+            },
+            fontFamily: {
+              sans: ['"Inter"', 'sans-serif'],
+              mono: ['"Roboto Mono"', 'monospace'],
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              shimmer: {
+                  '0%': { backgroundPosition: '200% 0' },
+                  '100%': { backgroundPosition: '-200% 0' },
+              },
+              blink: {
+                  '0%, 100%': { opacity: 1 },
+                  '50%': { opacity: 0 },
+              },
+              'focus-glow': {
+                '0%': { boxShadow: '0 0 0 0px var(--primary-glow)' },
+                '100%': { boxShadow: '0 0 0 4px transparent' },
+              },
+              'crt-flicker': {
+                  '0%': { opacity: '1' },
+                  '2%': { opacity: '0.8' },
+                  '4%': { opacity: '1' },
+                  '15%': { opacity: '0.95' },
+                  '100%': { opacity: '1' },
+              }
+            },
+            animation: {
+              fadeInUp: 'fadeInUp 0.5s ease-in-out forwards',
+              shimmer: 'shimmer 1.5s linear infinite',
+              blink: 'blink 1s step-end infinite',
+              'focus-glow': 'focus-glow 0.4s ease-out',
+              'crt-flicker': 'crt-flicker 3s linear infinite',
+            },
+            boxShadow: {
+              glow: '0 0 15px 0px var(--primary-glow)',
+              'glow-cta': '0 0 15px 0px var(--cta-glow)',
+            },
+          },
+        },
+      }
+    </script>
     <style>
       :root {
-        /* Aether-Wave Color Palette */
-        --bg-color: #0a0c10;
-        --surface-color: #12161d;
-        --border-color: #2a303c;
-        --primary-color: #00f2ea; /* Electric Teal */
-        --primary-light-color: rgba(0, 242, 234, 0.1);
-        --primary-glow: rgba(0, 242, 234, 0.3);
-        --cta-color: #ff00a0; /* Vibrant Magenta */
-        --cta-glow: rgba(255, 0, 160, 0.3);
-        --text-primary-color: #e6f1ff;
-        --text-secondary-color: #8c96a5;
-        --success-color: #33ff8c;
-        --error-color: #ff4d4d;
+        /* Refined Aether-Wave Color Palette */
+        --bg-color: #050608;
+        --surface-color: #111317;
+        --border-color: #242830;
+        --primary-color: #00ddf0; /* Slightly brighter teal */
+        --primary-light-color: rgba(0, 221, 240, 0.1);
+        --primary-glow: rgba(0, 221, 240, 0.3);
+        --cta-color: #f000b8; /* Slightly brighter magenta */
+        --cta-glow: rgba(240, 0, 184, 0.3);
+        --text-primary-color: #f0f4f8; /* Brighter white */
+        --text-secondary-color: #a0a8b4; /* Softer grey */
+        --success-color: #33ff99;
+        --error-color: #ff5555;
 
         /* Resource Meter Colors */
         --cpu-color: #38BDF8;
@@ -32,26 +107,17 @@
         --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.35), 0 4px 6px -4px rgb(0 0 0 / 0.35);
       }
       
-      body::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAI2SURBVHjaYvz//z8DJQAggJiQOe/0g0s//PrP8M+Pj28m/P//fwYgA4gB3f//Z/j58+f/j4+PJgAEEBOkP3/+DP/+/fv/379//7+goOD/69ev/5+cnPz/9+/f/5+amvr/8+fP/w9/fPz/++fPnwMggJhA9e/ff9n/////+Pj4/+vr6/+fnZ39/+fPnwMggJgg+fn5/2/fvv3/8+fP/19eXv7/9+/f/09OTv7/8+fP/4+Pj/8///79+/+Tk5P/n56e/v/z589fYC0QAAHEBCj//v37/+Xl5f+fnZ39//fv3/9PTEz8//nz5//fv3//f3Jyor+cnJx/T01N/f/58+ffw4cP/19bW/v/69ev/5+fn/9/BQUF/79//y5ANAEggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJgAFUAmUCvfv0CAQACDAAwe740g8Z1+AAAAABJRU5ErkJggg==');
-        opacity: 0.05;
-        z-index: -1;
-        pointer-events: none;
-      }
+      /* DEPRECATED: Replaced with multi-layered starfield component */
+      body::before { display: none; }
 
       body {
         background-color: var(--bg-color);
         color: var(--text-primary-color);
         overflow: hidden;
+        font-family: 'Inter', sans-serif;
         background-image:
           radial-gradient(ellipse at center, rgba(18, 22, 29, 0.5) 0%, var(--bg-color) 70%),
-          radial-gradient(ellipse 80% 80% at 50% 120%, rgba(0, 242, 234, 0.08), transparent);
+          radial-gradient(ellipse 80% 80% at 50% 120%, rgba(0, 221, 240, 0.08), transparent);
       }
 
       /* Custom Selections */
@@ -66,140 +132,41 @@
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: transparent;
+        background: var(--surface-color);
+        border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb {
-        background: #484f58;
+        background: var(--border-color);
         border-radius: 4px;
-        border: 2px solid var(--surface-color);
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-color);
-      }
-      
-      .node-in-progress {
-          animation: pulse-node-glow 1.5s infinite ease-in-out;
+        background: var(--text-secondary-color);
       }
 
+      /* Add styles for custom classes used in components that Tailwind can't see */
       .edge-flow {
-        stroke-dasharray: 6, 4;
-        animation: edge-flow 1s linear infinite;
-      }
-      @keyframes edge-flow {
-        from { stroke-dashoffset: 0; }
-        to { stroke-dashoffset: -10; }
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: edge-flow-anim 2s ease-in-out forwards;
       }
 
-    </style>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'background': 'var(--bg-color)',
-              'surface': 'var(--surface-color)',
-              'border': 'var(--border-color)',
-              'primary': 'var(--primary-color)',
-              'primary-light': 'var(--primary-light-color)',
-              'cta': 'var(--cta-color)',
-              'secondary': 'var(--text-secondary-color)',
-              'accent': 'var(--cta-color)', /* Using CTA as accent */
-              'text-primary': 'var(--text-primary-color)',
-              'text-secondary': 'var(--text-secondary-color)',
-              'success': 'var(--success-color)',
-              'error': 'var(--error-color)',
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['Roboto Mono', 'monospace'],
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: 0 },
-                '100%': { opacity: 1 },
-              },
-              fadeInUp: {
-                '0%': { opacity: 0, transform: 'translateY(10px)' },
-                '100%': { opacity: 1, transform: 'translateY(0)' },
-              },
-              scanline: {
-                '0%': { top: '-10%' },
-                '100%': { top: '110%' },
-              },
-              blink: {
-                '50%': { opacity: 0 },
-              },
-              typing: {
-                from: { width: 0 },
-                to: { width: '100%' },
-              },
-              'fill-bar': {
-                '0%': { transform: 'scaleX(0)' },
-                '100%': { transform: 'scaleX(1)' },
-              },
-              'crt-flicker': {
-                  '0%': { opacity: '0.95' },
-                  '50%': { opacity: '1' },
-                  '100%': { opacity: '0.95' },
-              },
-              'pulse-node-glow': {
-                  '0%, 100%': {
-                      transform: 'scale(1)',
-                      filter: 'drop-shadow(0 0 3px var(--primary-color))'
-                  },
-                  '50%': {
-                      transform: 'scale(1.02)',
-                      filter: 'drop-shadow(0 0 8px var(--primary-color))'
-                  }
-              },
-              'shimmer': {
-                  '0%': { background-position: '-200% 0' },
-                  '100%': { background-position: '200% 0' },
-              },
-              'focus-glow': {
-                '0%, 100%': { 'box-shadow': '0 0 8px 2px var(--primary-glow)' },
-                '50%': { 'box-shadow': '0 0 12px 4px var(--primary-light-color)' },
-              }
-            },
-            animation: {
-              fadeIn: 'fadeIn 0.5s ease-out forwards',
-              fadeInUp: 'fadeInUp 0.3s ease-out forwards',
-              scanline: 'scanline 8s linear infinite',
-              blink: 'blink 1s step-end infinite',
-              'fill-bar': 'fill-bar 0.5s ease-out forwards',
-              'crt-flicker': 'crt-flicker 0.15s infinite',
-              'shimmer': 'shimmer 1.5s infinite',
-              'focus-glow': 'focus-glow 2s infinite ease-in-out',
-            },
-            boxShadow: {
-                'xs': 'var(--shadow-xs)',
-                'sm': 'var(--shadow-sm)',
-                'md': 'var(--shadow-md)',
-                'lg': 'var(--shadow-lg)',
-                'glow': '0 0 15px -3px var(--primary-glow)',
-                'glow-cta': '0 0 15px -3px var(--cta-glow)',
-                'inner-glow': 'inset 0 0 10px 0 var(--primary-glow)',
-            }
-          }
+      @keyframes edge-flow-anim {
+        to {
+          stroke-dashoffset: 0;
         }
       }
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.16.0",
-    "marked": "https://aistudiocdn.com/marked@^16.2.1"
-  }
-}
-</script>
-</head>
-  <body class="bg-background text-text-primary font-sans">
+
+      .node-in-progress rect {
+        animation: pulse-border 1.5s infinite;
+      }
+      
+      @keyframes pulse-border {
+        0%, 100% { stroke: var(--primary-color); }
+        50% { stroke: var(--text-primary-color); }
+      }
+    </style>
+  </head>
+  <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

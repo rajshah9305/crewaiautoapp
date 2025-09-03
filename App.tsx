@@ -33,9 +33,15 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'mission' | 'design'>('mission');
 
   const logEntriesRef = useRef(logEntries);
+  const tasksRef = useRef(tasks);
+  
   useEffect(() => {
     logEntriesRef.current = logEntries;
   }, [logEntries]);
+
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
 
   useEffect(() => {
     if (localStorage.getItem('crewai_saved_plan')) {
@@ -271,29 +277,23 @@ const App: React.FC = () => {
       
       const allTasksDone = tasks.length > 0 && tasks.every(t => t.status === 'completed');
       if (allTasksDone) {
-        addLogEntry('System', 'All tasks complete. Generating final report.', 'system');
         setAppState('FINALIZING');
         return;
       }
 
-      // Check if a task is already running. If so, do not start another one.
       const isTaskRunning = tasks.some(t => t.status === 'in-progress');
       if (isTaskRunning) {
         return;
       }
       
-      // Find the next available task to run.
       const nextTask = tasks.find(task => task.status === 'pending');
       
       if (!nextTask) {
-        // No pending tasks, maybe some are blocked or errored.
-        // The effect will re-trigger if states change.
+        // If no pending tasks, but not all are done, we wait.
+        // This can happen if tasks are blocked.
         return;
       }
       
-      // Mark the task as in-progress and start execution.
-      // This state update will cause a re-render, and the 'isTaskRunning' guard
-      // will prevent new tasks from starting until this one is done.
       updateTaskStatus(nextTask.id, 'in-progress');
       
       try {
@@ -301,10 +301,22 @@ const App: React.FC = () => {
         addLogEntry(nextTask.agent, ``, 'thought', true);
         const agentContextLogs = logEntriesRef.current.filter(e => e.type !== 'user');
         
-        await agentService.executeTaskStream(nextTask, goal, agentContextLogs, updateLastLogEntry, () => {
-            markLastLogFinished();
-            updateTaskStatus(nextTask.id, 'completed');
-        });
+        await agentService.executeTaskStream(nextTask, goal, agentContextLogs, updateLastLogEntry);
+        
+        markLastLogFinished();
+        updateTaskStatus(nextTask.id, 'completed');
+
+        const currentTasks = tasksRef.current;
+        const remainingTasks = currentTasks.filter(t => t.status !== 'completed' && t.id !== nextTask.id);
+        
+        // If there are more tasks to do, pause before starting the next one.
+        if (remainingTasks.length > 0) {
+            setAppState('PAUSING_BETWEEN_TASKS');
+        } else {
+            // This was the last task, move to finalizing.
+            setAppState('FINALIZING');
+        }
+
       } catch(error) {
           const err = error instanceof Error ? error.message : "An unknown task execution error occurred.";
           markLastLogFinished();
@@ -320,6 +332,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const finalize = async () => {
         if (appState === 'FINALIZING') {
+            addLogEntry('System', 'All tasks complete. Generating final report.', 'system');
             try {
                 const agentContextLogs = logEntries.filter(e => e.type !== 'user');
                 const output = await agentService.generateFinalOutput(goal, agentContextLogs);
@@ -335,6 +348,17 @@ const App: React.FC = () => {
     };
     finalize();
   }, [appState, goal, logEntries, addLogEntry]);
+
+  // New effect to handle the pause between tasks.
+  useEffect(() => {
+    if (appState === 'PAUSING_BETWEEN_TASKS') {
+        addLogEntry('System', 'Pausing for 2s to respect API rate limits.', 'system');
+        const timer = setTimeout(() => {
+            setAppState('EXECUTING');
+        }, 2000); // 2-second pause
+        return () => clearTimeout(timer);
+    }
+  }, [appState, addLogEntry]);
 
   const showPanels = appState !== 'IDLE' && currentView === 'mission';
 
@@ -356,6 +380,7 @@ const App: React.FC = () => {
                 />
             );
         case 'EXECUTING':
+        case 'PAUSING_BETWEEN_TASKS':
         case 'ERROR':
             return <ActivityMonitor tasks={tasks} logEntries={logEntries} />;
         case 'FINALIZING':
@@ -378,7 +403,7 @@ const App: React.FC = () => {
         hasSavedPlan={hasSavedPlan}
       />
       <div className="w-full h-screen flex flex-col font-sans overflow-hidden p-2 sm:p-4 relative">
-          <header className="w-full grid grid-cols-3 items-center gap-4 py-2 px-4 bg-surface/90 backdrop-blur-sm border border-border rounded-lg shadow-md mb-4 animate-fadeInUp z-20">
+          <header className="w-full grid grid-cols-3 items-center gap-4 py-2 px-4 bg-surface/80 backdrop-blur-sm border border-border rounded-lg shadow-md mb-4 animate-fadeInUp z-20">
               <div className="flex items-center gap-1 sm:gap-3">
                   {showPanels && (
                     <button aria-label="Toggle Crew Manifest" onClick={() => setIsSidebarOpen(p => !p)} className="p-2 rounded-md hover:bg-border transition-colors">
@@ -403,7 +428,7 @@ const App: React.FC = () => {
                     </button>
                 )}
                  <button
-                    onClick={() => setCurrentView(v => v === 'mission' ? 'design' : 'mission')}
+                    onClick={() => { setCurrentView(v => v === 'mission' ? 'design' : 'mission'); }}
                     className={`group bg-surface border border-border px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 hover:border-primary/50 transition-all text-text-primary font-medium active:scale-95 shadow-sm ${currentView === 'design' ? 'border-primary/50 bg-primary-light' : ''}`}
                     title="Toggle Design Bay"
                 >
