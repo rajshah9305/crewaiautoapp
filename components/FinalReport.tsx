@@ -10,16 +10,18 @@ interface FinalReportProps {
 }
 
 const renderer = new marked.Renderer();
-// FIX: Bypassing incompatible type definition for marked's heading renderer. The project's @types/marked likely expects a different function signature.
+// FIX: Bypassing incompatible type definition for marked's heading renderer.
 (renderer.heading as any) = (text: string, level: number) => `<h${level} class="text-text-primary font-semibold mt-6 mb-2 pb-1 border-b border-border">${text}</h${level}>`;
-renderer.strong = (text: string) => `<strong class="font-semibold text-text-primary">${text}</strong>`;
+// FIX: Bypassing incompatible type definition for marked's strong renderer.
+(renderer.strong as any) = (text: string) => `<strong class="font-semibold text-text-primary">${text}</strong>`;
 // FIX: Bypassing incompatible type definition for marked's list renderer.
 (renderer.list as any) = (body: string, ordered: boolean) => {
     const tag = ordered ? 'ol' : 'ul';
     const className = ordered ? 'list-decimal' : 'list-disc';
     return `<${tag} class="${className} pl-6 space-y-2">${body}</${tag}>`;
 }
-renderer.paragraph = (text: string) => `<p class="text-text-secondary leading-relaxed">${text}</p>`;
+// FIX: Bypassing incompatible type definition for marked's paragraph renderer.
+(renderer.paragraph as any) = (text: string) => `<p class="text-text-secondary leading-relaxed">${text}</p>`;
 
 marked.setOptions({ renderer });
 

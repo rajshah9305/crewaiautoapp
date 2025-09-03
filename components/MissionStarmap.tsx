@@ -90,7 +90,16 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
   }, [tasks]);
 
   if (!tasks || tasks.length === 0) {
-    return <div className="p-4 text-center text-sm text-text-secondary">Awaiting mission plan...</div>;
+    return (
+        <div className="bg-surface/80 backdrop-blur-md border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
+            <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary mb-4 pb-3 border-b border-border">
+                <StellarCartographyIcon className="h-6 w-6 text-secondary"/> Mission Starmap
+            </h2>
+            <div className="flex-1 flex items-center justify-center text-center text-sm text-text-secondary">
+                Awaiting mission plan...
+            </div>
+        </div>
+    );
   }
 
   return (
