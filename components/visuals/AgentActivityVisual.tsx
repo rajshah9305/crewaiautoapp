@@ -4,19 +4,19 @@ import ResearchVisual from './ResearchVisual';
 import WritingVisual from './WritingVisual';
 import SparklesIcon from '../icons/SparklesIcon';
 
-const AgentActivityVisual: React.FC<{ agent: string }> = ({ agent }) => {
+const AgentActivityVisual: React.FC<{ agent: string, liveText?: string, liveCode?: string, streamingText?: string }> = ({ agent, liveText, liveCode, streamingText }) => {
   const getVisualForAgent = () => {
     switch (agent) {
       case 'Research Agent':
-        return <ResearchVisual />;
+        return <ResearchVisual streamingText={streamingText || ''} />;
       case 'Content Strategist':
-        return <WritingVisual text="Plotting Strategy..." />;
+        return <WritingVisual title="Plotting Strategy..." liveText={liveText || ''} />;
       case 'Technical Writer':
-        return <WritingVisual text="Transcribing Data..." />;
+        return <WritingVisual title="Transcribing Data..." liveText={liveText || ''} />;
       case 'Code Generator':
-        return <CodeVisual />;
+        return <CodeVisual liveCode={liveCode || ''} />;
       case 'Reviewer Agent':
-        return <WritingVisual text="Verifying Output..." />;
+        return <WritingVisual title="Verifying Output..." liveText={liveText || ''} />;
       default:
         return (
            <div className="flex items-center gap-3 p-3">

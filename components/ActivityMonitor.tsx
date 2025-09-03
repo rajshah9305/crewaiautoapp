@@ -1,28 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task, LogEntry } from '../types';
 import CodeVisual from './visuals/CodeVisual';
 import ResearchVisual from './visuals/ResearchVisual';
 import WritingVisual from './visuals/WritingVisual';
-import SparklesIcon from './icons/SparklesIcon';
 import { AGENT_AVATARS } from './agent-config';
 import DotIcon from './icons/DotIcon';
 import Loader from './Loader';
+import LiveMarkdownRenderer from './LiveMarkdownRenderer';
 
 // A map to get the correct visual component for an agent.
 const AGENT_VISUALS: { [key: string]: React.FC<any> } = {
   'Research Agent': ResearchVisual,
-  'Content Strategist': () => <WritingVisual text="Plotting Strategy..." />,
-  'Technical Writer': () => <WritingVisual text="Transcribing Data..." />,
+  'Content Strategist': (props) => <WritingVisual {...props} title="Strategy Formulation..." />,
+  'Technical Writer': (props) => <WritingVisual {...props} title="Report Composition..." />,
   'Code Generator': CodeVisual,
-  'Reviewer Agent': () => <WritingVisual text="Verifying Output..." />,
+  'Reviewer Agent': (props) => <WritingVisual {...props} title="Final Review..." />,
 };
+
+const extractContentForVisual = (agent: string, streamingText: string): { [key: string]: any } => {
+    if (agent === 'Code Generator') {
+        const codeBlocks = streamingText.match(/```(?:\w+\n)?([\s\S]*?)```/g) || [];
+        const code = codeBlocks.map(block => block.replace(/```(?:\w+\n)?/, '').replace(/```/, '')).join('\n\n');
+        return { liveCode: code };
+    }
+    if (['Technical Writer', 'Content Strategist', 'Reviewer Agent'].includes(agent)) {
+        const cleanText = streamingText.replace(/\*\*(Thinking|Action)(?:\s\(.*?\))?:\*\*/g, '').trim();
+        return { liveText: cleanText };
+    }
+    if (agent === 'Research Agent') {
+        return { streamingText };
+    }
+    return {};
+}
+
+const ResourceMeter: React.FC<{ label: string, value: number, color: string }> = ({ label, value, color }) => (
+    <div className="flex-1">
+        <div className="flex justify-between items-center mb-0.5">
+            <span className="text-xs font-semibold" style={{ color }}>{label}</span>
+            <span className="font-mono text-xs text-text-secondary">{value.toFixed(0)}%</span>
+        </div>
+        <div className="w-full bg-black/30 rounded-full h-1.5 overflow-hidden">
+            <div 
+                className="h-full rounded-full animate-fill-bar" 
+                style={{ width: `${value}%`, backgroundColor: color, transformOrigin: 'left' }}
+            />
+        </div>
+    </div>
+);
 
 const AgentCard: React.FC<{ task: Task; streamingLog: LogEntry | undefined }> = ({ task, streamingLog }) => {
     const AgentVisual = AGENT_VISUALS[task.agent] || null;
     const AgentIcon = AGENT_AVATARS[task.agent] || DotIcon;
+    const streamingContent = streamingLog?.content || '';
+    const visualProps = extractContentForVisual(task.agent, streamingContent);
+    const [resources, setResources] = useState({ cpu: 10, cognition: 10, network: 10 });
+    
+    useEffect(() => {
+        const decay = (prev: number) => Math.max(10, prev * 0.95);
+        
+        const update = () => {
+            const content = streamingLog?.content || '';
+            let cpu = 10, cognition = 10, network = 10;
+            
+            if (/(compute|calculat|process|generat|code)/i.test(content)) cpu = Math.min(100, 40 + Math.random() * 60);
+            if (/(analyz|think|strateg|reason|plan)/i.test(content)) cognition = Math.min(100, 40 + Math.random() * 60);
+            if (/(network|fetch|search|request|web)/i.test(content)) network = Math.min(100, 40 + Math.random() * 60);
+
+            setResources(prev => ({
+                cpu: cpu > 10 ? cpu : decay(prev.cpu),
+                cognition: cognition > 10 ? cognition : decay(prev.cognition),
+                network: network > 10 ? network : decay(prev.network),
+            }));
+        };
+
+        const interval = setInterval(update, 300);
+        return () => clearInterval(interval);
+    }, [streamingLog?.content]);
+
 
     return (
-        <div className="bg-surface border border-border rounded-xl shadow-md overflow-hidden animate-fadeInUp">
+        <div className="bg-surface/90 backdrop-blur-sm border border-border rounded-xl shadow-lg overflow-hidden animate-fadeInUp">
             <div className="p-4 border-b border-border bg-background/50">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-surface flex items-center justify-center border border-border">
@@ -34,22 +91,30 @@ const AgentCard: React.FC<{ task: Task; streamingLog: LogEntry | undefined }> = 
                     </div>
                 </div>
             </div>
-            <div className="grid md:grid-cols-2">
-                <div className="p-4 bg-background border-b md:border-b-0 md:border-r border-border">
-                    {AgentVisual ? <AgentVisual /> : (
-                        <div className="flex items-center justify-center h-full gap-3 p-3">
-                            <SparklesIcon className="h-6 w-6 text-secondary"/>
-                            <span className="text-sm font-medium text-secondary">Processing...</span>
+            
+             <div className="grid grid-cols-1 lg:grid-cols-5 bg-background">
+                <div className="lg:col-span-3 border-b lg:border-b-0 lg:border-r border-border p-2">
+                     {AgentVisual ? (
+                        <div className="h-full min-h-[250px] bg-surface rounded-md border border-border overflow-hidden">
+                           <AgentVisual {...visualProps} />
                         </div>
-                    )}
+                    ) : <div className="h-full min-h-[250px] bg-surface rounded-md border border-border"/>}
                 </div>
-                <div className="p-4 text-sm font-mono text-text-secondary bg-surface min-h-[160px] relative">
-                    <p className="font-sans font-semibold text-xs text-text-secondary uppercase tracking-wider mb-2">Live Log Stream</p>
-                    <pre className="whitespace-pre-wrap break-words h-full text-text-secondary/90">
-                        {streamingLog?.content || <span className="text-text-secondary/60">Awaiting agent output...</span>}
-                        <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
-                    </pre>
+                <div className="lg:col-span-2 text-sm font-mono text-text-secondary relative flex flex-col p-2">
+                    <div className="relative flex-1 flex flex-col bg-surface/80 rounded-md border border-border p-3 overflow-hidden min-h-[250px]">
+                        <p className="font-sans font-semibold text-xs text-text-secondary uppercase tracking-wider mb-2 flex-shrink-0">Live Log Stream</p>
+                        <div className="overflow-y-auto pr-2 flex-1 animate-crt-flicker">
+                            <LiveMarkdownRenderer content={streamingContent} />
+                        </div>
+                        <div className="absolute inset-0 bg-black/20 pointer-events-none" style={{ background: 'linear-gradient(rgba(13, 17, 23, 0) 95%, rgba(13, 17, 23, 1))' }}/>
+                    </div>
                 </div>
+            </div>
+            
+            <div className="p-3 bg-background/50 border-t border-border flex items-center gap-4">
+                <ResourceMeter label="CPU" value={resources.cpu} color="var(--cpu-color)" />
+                <ResourceMeter label="Cognition" value={resources.cognition} color="var(--cognition-color)" />
+                <ResourceMeter label="Network" value={resources.network} color="var(--network-color)" />
             </div>
         </div>
     );

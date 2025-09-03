@@ -1,40 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import WriteIcon from '../icons/WriteIcon';
 
-const styles = `
-@keyframes blink {
-  50% { opacity: 0; }
-}
-.blinking-cursor {
-  animation: blink 1s step-end infinite;
-}
+const WritingVisual: React.FC<{ liveText: string; title: string }> = ({ liveText, title }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const textEndRef = useRef<HTMLSpanElement>(null);
 
-.line-draw {
-  transform-origin: left;
-  animation: draw 1.5s ease-out forwards;
-}
-@keyframes draw {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-`;
+  useEffect(() => {
+    // Basic typing animation effect
+    let i = displayedText.length;
+    if (i < liveText.length) {
+      const typingSpeed = 30; // Slower for writing
+      const timer = setTimeout(() => {
+        setDisplayedText(liveText.substring(0, i + Math.floor(Math.random() * 3) + 1));
+      }, Math.random() * typingSpeed);
+      return () => clearTimeout(timer);
+    }
+  }, [liveText, displayedText]);
 
-const WritingVisual: React.FC<{ text: string }> = ({ text }) => {
+  useEffect(() => {
+    textEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [displayedText]);
+
+
   return (
-    <div className="p-4 font-mono text-xs">
-      <style>{styles}</style>
-      <div className="flex items-center gap-2 text-text-secondary mb-3">
+    <div className="p-3 font-sans text-xs h-full flex flex-col">
+      <div className="flex items-center gap-2 text-text-secondary mb-2 flex-shrink-0">
         <WriteIcon className="w-4 h-4" />
-        <span className="font-semibold">{text}</span>
+        <span className="font-semibold">{title}</span>
       </div>
-      <div className="space-y-2 p-2 bg-background border border-border rounded-md h-20">
-         <div className="h-2 bg-gray-700 rounded-sm w-[90%] line-draw" style={{ animationDelay: '0s' }} />
-         <div className="h-2 bg-gray-700 rounded-sm w-[75%]" style={{ animationDelay: '0.2s' }}/>
-         <div className="flex items-center">
-            <div className="h-2 bg-gray-700 rounded-sm w-[50%] line-draw" style={{ animationDelay: '0.4s' }} />
-            <div className="w-0.5 h-3 bg-text-primary ml-1 blinking-cursor" />
+      <div className="space-y-2 p-3 bg-background border border-border rounded-md flex-1 overflow-auto">
+         <div className="text-text-secondary leading-relaxed">
+            {displayedText}
+            <span className="inline-block w-0.5 h-3 bg-primary ml-0.5 animate-blink" ref={textEndRef}></span>
          </div>
-         <div className="h-2 bg-gray-700 rounded-sm w-[80%]" style={{ animationDelay: '0.6s' }}/>
       </div>
     </div>
   );

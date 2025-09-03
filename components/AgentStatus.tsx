@@ -42,9 +42,9 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime }) => {
     switch (state) {
       case 'IDLE': return null;
       case 'PLANNING': return { text: 'Planning Mission...', color: 'text-text-primary', icon: <Loader /> };
-      case 'AWAITING_APPROVAL': return { text: 'Awaiting Approval', color: 'text-primary', icon: <SparklesIcon/> };
-      case 'EXECUTING': return { text: 'Executing Mission...', color: 'text-text-primary', icon: <Loader /> };
-      case 'FINALIZING': return { text: 'Finalizing Report...', color: 'text-primary', icon: <Loader /> };
+      case 'AWAITING_APPROVAL': return { text: 'Plan Ready for Review', color: 'text-primary', icon: <SparklesIcon/> };
+      case 'EXECUTING': return { text: 'Executing...', color: 'text-text-primary', icon: <Loader /> };
+      case 'FINALIZING': return { text: 'Finalizing...', color: 'text-primary', icon: <Loader /> };
       case 'FINISHED': return { text: 'Mission Complete', color: 'text-success', icon: <CheckCircleIcon /> };
       case 'ERROR': return { text: 'Mission Failed', color: 'text-error', icon: <XIcon /> };
       default: return { text: 'Standby', color: 'text-secondary', icon: <SparklesIcon/> };
@@ -58,17 +58,17 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime }) => {
   const { text, color, icon } = statusInfo;
   
   return (
-    <div className={`bg-background border border-border rounded-full px-3 sm:px-4 py-1.5 flex items-center justify-center gap-3 sm:gap-4 shadow-sm transition-all duration-300`}>
-        <div className="flex items-center gap-2 sm:gap-2.5">
+    <div className={`flex items-center justify-center gap-2 transition-all duration-300`}>
+        <div className="flex items-center gap-2">
             <div className={`h-5 w-5 ${state === 'PLANNING' || state === 'EXECUTING' || state === 'FINALIZING' ? 'text-primary' : color}`}>
                 {React.cloneElement(icon, { className: 'h-full w-full' })}
             </div>
-            <p className={`font-sans text-sm sm:text-base font-medium ${color}`}>{text}</p>
+            <p className={`font-sans text-sm font-medium ${color}`}>{text}</p>
         </div>
         {startTime && (
-             <div className="flex items-center gap-2 text-text-secondary border-l border-border pl-3 sm:pl-3">
+             <div className="hidden sm:flex items-center gap-2 text-text-secondary border-l border-border/50 pl-2">
                 <TimerIcon className="h-5 w-5"/>
-                <span className="font-mono text-sm sm:text-base">{elapsedTime}</span>
+                <span className="font-mono text-sm">{elapsedTime}</span>
              </div>
         )}
     </div>

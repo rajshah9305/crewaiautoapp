@@ -109,7 +109,7 @@ Recent Crew Activity (for context):
 ${historySummary}
 
 Execute your task. Stream your thought process and actions in Markdown format. Use this structure:
-**Thinking:** [Your reasoning and plan.]
+**Thinking:** [Your reasoning and plan. IMPORTANT: Include effort hints in parenthesis, e.g., (heavy compute), (analyzing data), (network request) to show your workload.]
 **Action:** [The specific action you are taking. Use markdown code blocks for code.]`;
     
     const responseStream = await ai.models.generateContentStream({

@@ -3,6 +3,7 @@ import { AppState } from '../types';
 import CrewAILogo from './icons/CrewAILogo';
 import ControlPanel from './ControlPanel';
 import PaperAirplaneIcon from './icons/PaperAirplaneIcon';
+import PlanningVisual from './PlanningVisual';
 
 interface MissionBriefingProps {
     onSendMessage: (message: string) => void;
@@ -29,8 +30,16 @@ const MissionBriefing: React.FC<MissionBriefingProps> = ({
           handleSend();
         }
     };
+
+    if (appState === 'PLANNING') {
+        return (
+            <div className="flex flex-col h-full w-full max-w-5xl mx-auto justify-center">
+                <PlanningVisual />
+            </div>
+        );
+    }
     
-    const isIdle = appState === 'IDLE';
+    const isIdle = appState === 'IDLE' || appState === 'AWAITING_APPROVAL';
 
     return (
         <div className="flex flex-col h-full w-full max-w-5xl mx-auto justify-center">

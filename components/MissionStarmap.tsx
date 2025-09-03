@@ -6,12 +6,12 @@ interface MissionStarmapProps {
   tasks: Task[];
 }
 
-const statusColors: { [key in TaskStatus]: { fill: string; stroke: string; glow: string } } = {
-  'pending': { fill: 'var(--surface-color)', stroke: '#8b949e', glow: '#8b949e' },
-  'blocked': { fill: 'var(--bg-color)', stroke: '#484f58', glow: '#484f58' },
-  'in-progress': { fill: 'var(--primary-light-color)', stroke: 'var(--primary-color)', glow: 'var(--primary-color)' },
-  'completed': { fill: 'rgba(35, 134, 54, 0.1)', stroke: 'var(--success-color)', glow: 'var(--success-color)' },
-  'error': { fill: 'rgba(218, 54, 51, 0.1)', stroke: 'var(--error-color)', glow: 'var(--error-color)' },
+const statusColors: { [key in TaskStatus]: { fill: string; stroke: string; } } = {
+  'pending': { fill: 'var(--surface-color)', stroke: '#8b949e' },
+  'blocked': { fill: 'var(--bg-color)', stroke: '#484f58' },
+  'in-progress': { fill: 'var(--primary-light-color)', stroke: 'var(--primary-color)' },
+  'completed': { fill: 'rgba(35, 134, 54, 0.1)', stroke: 'var(--success-color)' },
+  'error': { fill: 'rgba(218, 54, 51, 0.1)', stroke: 'var(--error-color)' },
 };
 
 const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
@@ -114,13 +114,6 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
                         <polygon points="0 0, 10 3.5, 0 7" fill="#484f58" />
                     </marker>
-                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
                     </defs>
                     <g>
                     {graphData.edges.map(edge => (
@@ -142,16 +135,12 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                         return (
                         <g key={node.id} transform={`translate(${x}, ${y})`}>
                             <title>{`[${index}] ${node.title} - Status: ${node.status}`}</title>
-                            {isPulsing && (
-                                <circle r={16} fill={colors.stroke} className="animate-ping opacity-70" />
-                            )}
                              <circle
                                 r={16}
                                 fill={colors.fill}
                                 stroke={colors.stroke}
                                 strokeWidth="2"
-                                className="transition-all duration-300"
-                                style={{ filter: isPulsing ? `url(#glow)`: 'none', boxShadow: `0 0 20px ${colors.glow}` }}
+                                className={`transition-all duration-300 ${isPulsing ? 'node-in-progress' : ''}`}
                             />
                             <text
                                 textAnchor="middle"
