@@ -253,7 +253,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                     <span>Save Plan</span>
                 </button>
               </div>
-              <button onClick={handleApprove} className="w-full flex items-center justify-center gap-2 bg-cta text-white font-bold text-base py-3 px-4 rounded-lg transition-all duration-200 hover:bg-orange-600 active:scale-95 shadow-md hover:shadow-lg">
+              <button onClick={handleApprove} className="w-full flex items-center justify-center gap-2 bg-cta text-black font-bold text-base py-3 px-4 rounded-lg transition-all duration-200 hover:bg-amber-500 active:scale-95 shadow-md hover:shadow-lg hover:shadow-primary/40">
                   <PaperAirplaneIcon className="h-5 w-5" />
                   <span>Confirm & Launch</span>
               </button>

@@ -14,7 +14,8 @@ const renderer = new marked.Renderer();
 // The original API passed discrete arguments (e.g., text, level), while the newer API passes a single token object.
 // We use `function` to get the correct `this` context for `this.parser`.
 renderer.heading = function(text, level) {
-    return `<h${level} class="text-text-primary font-semibold mt-6 mb-2 pb-1 border-b border-border">${text}</h${level}>`;
+    const sizes = ['text-3xl', 'text-2xl', 'text-xl', 'text-lg', 'text-base', 'text-sm'];
+    return `<h${level} class="${sizes[level-1]} text-text-primary font-semibold mt-6 mb-2 pb-1 border-b border-border">${text}</h${level}>`;
 };
 renderer.strong = function(text) {
     return `<strong class="font-semibold text-text-primary">${text}</strong>`;
@@ -22,11 +23,15 @@ renderer.strong = function(text) {
 renderer.list = function(body, ordered) {
     const tag = ordered ? 'ol' : 'ul';
     const className = ordered ? 'list-decimal' : 'list-disc';
-    return `<${tag} class="${className} pl-6 space-y-2">${body}</${tag}>`;
+    return `<${tag} class="${className} pl-6 space-y-2 my-4">${body}</${tag}>`;
 };
 renderer.paragraph = function(text) {
-    return `<p class="text-text-secondary leading-relaxed">${text}</p>`;
+    return `<p class="text-text-secondary leading-relaxed my-4">${text}</p>`;
 };
+renderer.codespan = function(code) {
+    return `<code class="bg-surface px-1.5 py-1 rounded-md text-primary font-mono text-sm">${code}</code>`;
+};
+
 
 marked.setOptions({ renderer });
 
@@ -81,7 +86,7 @@ const FinalReport: React.FC<FinalReportProps> = ({ report }) => {
             <div className="mt-4 flex justify-center">
                 <button 
                     onClick={handleDownload} 
-                    className="flex items-center gap-2 text-sm font-semibold text-primary bg-primary-light px-4 py-2 rounded-md hover:bg-orange-200/20 transition-colors border border-primary/20"
+                    className="flex items-center gap-2 text-sm font-semibold text-primary bg-primary-light px-4 py-2 rounded-md hover:bg-amber-200/20 transition-colors border border-primary/20"
                 >
                     <DownloadIcon className="h-5 w-5" />
                     Download Report

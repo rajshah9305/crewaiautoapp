@@ -49,7 +49,7 @@ const MissionBriefing: React.FC<MissionBriefingProps> = ({
                     Define Your Mission
                 </h1>
                 <p className="mt-3 text-text-secondary max-w-md">
-                  State your objective below. Select a template or press <kbd className="font-sans bg-surface border border-border rounded px-1.5 py-0.5 text-xs shadow-sm">Ctrl+K</kbd> for more options.
+                  State your objective below. Select a template or press <kbd className="font-sans bg-surface border border-border rounded px-1.5 py-0.5 text-xs shadow-sm">⌘K</kbd> for more options.
                 </p>
             </div>
             <div className="mt-8">
@@ -75,7 +75,7 @@ const MissionBriefing: React.FC<MissionBriefingProps> = ({
                     <button 
                         onClick={handleSend}
                         disabled={!isIdle || isLoading || !inputValue.trim()}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-2.5 rounded-lg bg-cta text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-orange-600 transition-all active:scale-90 shadow-lg disabled:shadow-none"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-2.5 rounded-lg bg-cta text-black disabled:opacity-50 disabled:cursor-not-allowed hover:bg-amber-500 transition-all active:scale-90 shadow-lg disabled:shadow-none hover:shadow-primary/40"
                         aria-label="Deploy Crew"
                     >
                         <PaperAirplaneIcon className="h-6 w-6" />

@@ -10,8 +10,8 @@ const statusColors: { [key in TaskStatus]: { fill: string; stroke: string; } } =
   'pending': { fill: 'var(--surface-color)', stroke: '#8b949e' },
   'blocked': { fill: 'var(--bg-color)', stroke: '#484f58' },
   'in-progress': { fill: 'var(--primary-light-color)', stroke: 'var(--primary-color)' },
-  'completed': { fill: 'rgba(35, 134, 54, 0.1)', stroke: 'var(--success-color)' },
-  'error': { fill: 'rgba(218, 54, 51, 0.1)', stroke: 'var(--error-color)' },
+  'completed': { fill: 'rgba(35, 134, 54, 0.2)', stroke: 'var(--success-color)' },
+  'error': { fill: 'rgba(218, 54, 51, 0.2)', stroke: 'var(--error-color)' },
 };
 
 const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
@@ -114,6 +114,9 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
                         <polygon points="0 0, 10 3.5, 0 7" fill="#484f58" />
                     </marker>
+                     <marker id="arrowhead-completed" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="var(--success-color)" />
+                    </marker>
                     </defs>
                     <g>
                     {graphData.edges.map(edge => (
@@ -123,7 +126,7 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                         fill="none"
                         stroke={edge.status === 'completed' ? 'var(--success-color)' : '#484f58'}
                         strokeWidth="1.5"
-                        markerEnd="url(#arrowhead)"
+                        markerEnd={edge.status === 'completed' ? 'url(#arrowhead-completed)' : 'url(#arrowhead)'}
                         className="transition-all duration-300"
                         />
                     ))}

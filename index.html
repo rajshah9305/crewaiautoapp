@@ -8,21 +8,21 @@
     <style>
       :root {
         /* Elite & Feature-Rich Color Palette - "Command Center" Dark Theme */
-        --bg-color: #0d1117; /* Near Black */
-        --surface-color: #161b22; /* Dark Gray */
-        --border-color: #30363d; /* Gray Border */
-        --primary-color: #f77829; /* Vibrant Orange Highlight */
-        --primary-light-color: rgba(247, 120, 41, 0.1); /* Light Orange Accent */
-        --cta-color: #f77829; /* Strong Orange CTA */
-        --text-primary-color: #c9d1d9; /* Light Gray Text */
-        --text-secondary-color: #8b949e; /* Medium Gray Text */
-        --success-color: #238636; /* Bright Green */
-        --error-color: #da3633; /* Strong Red */
+        --bg-color: #0A0E13;
+        --surface-color: #1A1F26;
+        --border-color: #2A3039;
+        --primary-color: #FBBF24; /* Amber 400 */
+        --primary-light-color: rgba(251, 191, 36, 0.1);
+        --cta-color: #FBBF24; /* Amber 400 */
+        --text-primary-color: #E6EDF3;
+        --text-secondary-color: #8D96A0;
+        --success-color: #238636;
+        --error-color: #DA3633;
         
         /* Resource Meter Colors */
-        --cpu-color: #58a6ff;
-        --cognition-color: #a371f7;
-        --network-color: #3fb950;
+        --cpu-color: #38BDF8; /* Sky 400 */
+        --cognition-color: #A78BFA; /* Violet 400 */
+        --network-color: #4ADE80; /* Green 400 */
 
         --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.15);
         --shadow-sm: 0 2px 4px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
@@ -35,9 +35,9 @@
         color: var(--text-primary-color);
         overflow: hidden; /* Prevent body scroll, panels will scroll instead */
         background-image:
-          linear-gradient(var(--border-color) 1px, transparent 1px),
-          linear-gradient(to right, var(--border-color) 1px, var(--bg-color) 1px);
-        background-size: 40px 40px;
+          linear-gradient(rgba(42, 48, 57, 0.5) 1px, transparent 1px),
+          linear-gradient(to right, rgba(42, 48, 57, 0.5) 1px, var(--bg-color) 1px);
+        background-size: 30px 30px;
       }
 
       /* Custom Selections */
@@ -60,7 +60,7 @@
         border: 2px solid var(--bg-color);
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #58a6ff;
+        background: var(--primary-color);
       }
       
       .node-in-progress {
@@ -122,11 +122,11 @@
               'pulse-node-glow': {
                   '0%, 100%': {
                       transform: 'scale(1)',
-                      filter: 'drop-shadow(0 0 4px var(--primary-color))'
+                      filter: 'drop-shadow(0 0 3px var(--primary-color))'
                   },
                   '50%': {
-                      transform: 'scale(1.1)',
-                      filter: 'drop-shadow(0 0 10px var(--primary-color))'
+                      transform: 'scale(1.05)',
+                      filter: 'drop-shadow(0 0 8px var(--primary-color))'
                   }
               }
             },
@@ -143,7 +143,7 @@
                 'sm': 'var(--shadow-sm)',
                 'md': 'var(--shadow-md)',
                 'lg': 'var(--shadow-lg)',
-                'glow': '0 0 15px -3px rgb(247 120 41 / 0.3)',
+                'glow': '0 0 15px -3px rgb(251 191 36 / 0.3)',
             }
           }
         }

@@ -2,10 +2,9 @@ import React from 'react';
 
 const CubeIcon: React.FC<{ className?: string, style?: React.CSSProperties }> = ({ className, style }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className} style={style}>
-      <path d="M10 2.5a.75.75 0 01.75.75v13.5a.75.75 0 01-1.5 0V3.25a.75.75 0 01.75-.75z" opacity="0.2" />
-      <path d="M3.25 5a.75.75 0 01.75-.75h12.5a.75.75 0 010 1.5H4a.75.75 0 01-.75-.75zM3.25 15a.75.75 0 01.75-.75h12.5a.75.75 0 010 1.5H4a.75.75 0 01-.75-.75z" opacity="0.2" />
-      <path fillRule="evenodd" d="M5 10a.75.75 0 01.75-.75h8.5a.75.75 0 010 1.5H5.75A.75.75 0 015 10z" clipRule="evenodd" />
-      <path fillRule="evenodd" d="M2 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 9.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clipRule="evenodd" />
+      <path d="M4 4.5A1.5 1.5 0 015.5 3h9A1.5 1.5 0 0116 4.5v9a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 014 13.5v-9z" opacity=".3"/>
+      <path d="M6.22 8.72a.75.75 0 011.06 0l2.22 2.22 2.22-2.22a.75.75 0 111.06 1.06l-2.22 2.22-2.22 2.22a.75.75 0 11-1.06-1.06l2.22-2.22-2.22-2.22a.75.75 0 010-1.06z" opacity=".3"/>
+      <path d="M5.5 4a.5.5 0 00-.5.5v9a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-9a.5.5 0 00-.5-.5h-9z" />
     </svg>
 );
 
