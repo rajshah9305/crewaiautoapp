@@ -31,14 +31,13 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
 
   const commands: Command[] = useMemo(() => {
     const templates = [
-      { title: "Stellar Cartography", prompt: "Conduct a comprehensive analysis of the Kepler-186 system, identifying key planetary characteristics, potential for habitability, and routes for exploration.", icon: <StellarCartographyIcon /> },
-      { title: "Captain's Log", prompt: "Write a 1000-word Captain's Log entry detailing the discovery of a new sentient species on planet LV-426, focusing on first contact protocols and cultural observations.", icon: <CaptainsLogIcon /> },
-      { title: "Nav-Computer Module", prompt: "Generate a responsive React component for a starship's navigation console, displaying orbital trajectories and warp jump calculations. Use a futuristic UI design.", icon: <NavComputerIcon /> },
+      { title: "Market Analysis", prompt: "Conduct a comprehensive analysis of the electric vehicle market, identifying key players, market trends, and future growth opportunities.", icon: <StellarCartographyIcon /> },
+      { title: "Blog Post", prompt: "Write a 1000-word blog post about the benefits of remote work, focusing on productivity, work-life balance, and talent acquisition.", icon: <CaptainsLogIcon /> },
+      { title: "React Component", prompt: "Generate a responsive React component for a multi-step form with validation, using Tailwind CSS for styling.", icon: <NavComputerIcon /> },
     ];
     
     const baseCommands: Command[] = [
       { id: 'new-mission', type: 'action', title: 'Start New Mission', icon: <RestartIcon className="h-5 w-5"/>, action: onNewMission },
-      // FIX: Add 'as const' to ensure the 'type' property is inferred as a literal type, satisfying the 'Command' interface.
       ...(hasSavedPlan ? [{ id: 'load-plan', type: 'action' as const, title: 'Load Saved Mission', icon: <SaveIcon className="h-5 w-5"/>, action: onLoadPlan }] : []),
     ];
 
@@ -50,7 +49,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
       icon: React.cloneElement(t.icon, { className: 'h-5 w-5' })
     }));
 
-    return [...baseCommands, ...templateCommands];
+    return [...templateCommands, ...baseCommands];
   }, [hasSavedPlan, onLoadPlan, onNewMission]);
 
 
@@ -102,9 +101,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-start justify-center pt-20" onClick={onClose}>
-      <div className="w-full max-w-xl bg-surface border border-border rounded-lg shadow-2xl animate-fadeIn" style={{ animationDuration: '0.2s' }} onClick={e => e.stopPropagation()}>
-        <div className="p-3 border-b border-border/50 flex items-center gap-3">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-20" onClick={onClose}>
+      <div className="w-full max-w-xl bg-surface border border-border rounded-lg shadow-lg animate-fadeInUp" style={{ animationDuration: '0.2s' }} onClick={e => e.stopPropagation()}>
+        <div className="p-3 border-b border-border flex items-center gap-3">
           <CommandIcon className="h-5 w-5 text-secondary"/>
           <input
             type="text"
@@ -114,7 +113,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
             autoFocus
             className="w-full bg-transparent focus:outline-none text-text-primary placeholder:text-text-secondary"
           />
-           <button onClick={onClose} className="p-1 rounded-full hover:bg-surface-light" aria-label="Close command palette">
+           <button onClick={onClose} className="p-1 rounded-full hover:bg-background" aria-label="Close command palette">
                <XIcon className="h-5 w-5 text-text-secondary"/>
            </button>
         </div>
@@ -127,10 +126,10 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
                 else if (cmd.type === 'action' && cmd.action) cmd.action();
                 onClose();
               }}
-              className={`flex items-center gap-4 p-3 rounded-md cursor-pointer transition-colors ${selectedIndex === index ? 'bg-primary/20 text-accent' : 'hover:bg-surface-light'}`}
+              className={`flex items-center gap-4 p-3 rounded-md cursor-pointer transition-colors ${selectedIndex === index ? 'bg-primary-light text-primary' : 'hover:bg-background'}`}
               onMouseEnter={() => setSelectedIndex(index)}
             >
-              <div className={selectedIndex === index ? 'text-accent' : 'text-secondary'}>{cmd.icon}</div>
+              <div className={selectedIndex === index ? 'text-primary' : 'text-secondary'}>{cmd.icon}</div>
               <span className="font-sans font-medium">{cmd.title}</span>
             </li>
           )) : (

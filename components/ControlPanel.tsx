@@ -12,27 +12,28 @@ interface ControlPanelProps {
 }
 
 const templates = [
-    { title: "Stellar Cartography", prompt: "Conduct a comprehensive analysis of the Kepler-186 system, identifying key planetary characteristics, potential for habitability, and routes for exploration.", icon: <StellarCartographyIcon /> },
-    { title: "Captain's Log", prompt: "Write a 1000-word Captain's Log entry detailing the discovery of a new sentient species on planet LV-426, focusing on first contact protocols and cultural observations.", icon: <CaptainsLogIcon /> },
-    { title: "Nav-Computer Module", prompt: "Generate a responsive React component for a starship's navigation console, displaying orbital trajectories and warp jump calculations. Use a futuristic UI design.", icon: <NavComputerIcon /> },
+    { title: "Market Analysis", prompt: "Conduct a comprehensive analysis of the electric vehicle market, identifying key players, market trends, and future growth opportunities.", icon: <StellarCartographyIcon /> },
+    { title: "Blog Post", prompt: "Write a 1000-word blog post about the benefits of remote work, focusing on productivity, work-life balance, and talent acquisition.", icon: <CaptainsLogIcon /> },
+    { title: "React Component", prompt: "Generate a responsive React component for a multi-step form with validation, using Tailwind CSS for styling.", icon: <NavComputerIcon /> },
 ];
 
 const ControlPanel: React.FC<ControlPanelProps> = ({ onSelectTemplate, onLoadPlan, hasSavedPlan, isLoading }) => {
   return (
-    <div className="w-full flex flex-col items-start justify-center gap-3 p-4 bg-surface/50 rounded-lg border border-border/30">
-        <span className="text-text-secondary font-mono tracking-widest text-sm uppercase">&gt; Mission Profiles:</span>
+    <div className="w-full flex flex-col items-start justify-center gap-3 mb-2 animate-fadeInUp">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full">
             {templates.map(template => (
                 <button
                     key={template.title}
                     onClick={() => onSelectTemplate(template.prompt)}
                     disabled={isLoading}
-                    className="group bg-surface/70 backdrop-blur-md border border-border/50 p-3 rounded-lg text-text-primary hover:border-accent hover:bg-surface-light transition-all duration-300 disabled:opacity-50 flex items-center gap-3 w-full text-left shadow-md"
+                    className="group bg-surface border border-border p-4 rounded-lg text-text-primary hover:border-accent hover:bg-background hover:shadow-md transition-all duration-200 disabled:opacity-50 flex items-center gap-4 w-full text-left"
                 >
-                    {React.cloneElement(template.icon, { className: `h-8 w-8 text-secondary group-hover:text-accent transition-colors duration-300 flex-shrink-0` })}
+                    <div className="flex-shrink-0 bg-background p-2 rounded-md border border-border shadow-sm">
+                        {React.cloneElement(template.icon, { className: `h-6 w-6 text-secondary group-hover:text-accent transition-colors duration-200` })}
+                    </div>
                     <div className="flex flex-col">
-                        <span className="font-semibold font-sans">{template.title}</span>
-                        <span className="text-xs text-text-secondary">Load Profile</span>
+                        <span className="font-semibold">{template.title}</span>
+                        <span className="text-xs text-text-secondary">Select Template</span>
                     </div>
                 </button>
             ))}
@@ -41,10 +42,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ onSelectTemplate, onLoadPla
             <button
                 onClick={onLoadPlan}
                 disabled={isLoading}
-                className="group mt-2 w-full bg-surface/70 backdrop-blur-md border border-dashed border-accent/80 p-3 rounded-lg text-accent hover:border-accent hover:bg-accent/10 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3"
+                className="group mt-2 w-full bg-primary-light/10 border border-dashed border-primary/50 p-3 rounded-lg text-primary hover:border-primary hover:bg-primary-light/20 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-3"
             >
                 <SaveIcon className="h-5 w-5"/>
-                <span className="font-semibold font-sans uppercase">Load Last Mission Plan from Archives</span>
+                <span className="font-semibold">Load Saved Mission Plan</span>
             </button>
         )}
     </div>

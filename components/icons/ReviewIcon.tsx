@@ -1,10 +1,10 @@
 import React from 'react';
 
 const ReviewIcon: React.FC<{ className?: string, style?: React.CSSProperties }> = ({ className, style }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} style={style} fill="none" viewBox="0 0 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-  </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className} style={style}>
+      <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" opacity="0.2" />
+      <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.18l.88-1.473a1.651 1.651 0 012.86-.37l.838 1.396a1.651 1.651 0 010 1.18l-.838 1.396a1.651 1.651 0 01-2.86-.37l-.88-1.473zM15.936 10.59a1.651 1.651 0 010-1.18l.88-1.473a1.651 1.651 0 012.86-.37l.838 1.396a1.651 1.651 0 010 1.18l-.838 1.396a1.651 1.651 0 01-2.86-.37l-.88-1.473z" clipRule="evenodd" />
+    </svg>
 );
 
 export default ReviewIcon;

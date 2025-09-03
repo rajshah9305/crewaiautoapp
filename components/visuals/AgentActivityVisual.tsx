@@ -10,25 +10,25 @@ const AgentActivityVisual: React.FC<{ agent: string }> = ({ agent }) => {
       case 'Research Agent':
         return <ResearchVisual />;
       case 'Content Strategist':
-        return <WritingVisual text="PLOTTING STRATEGY..." />;
+        return <WritingVisual text="Plotting Strategy..." />;
       case 'Technical Writer':
-        return <WritingVisual text="TRANSCRIBING DATA..." />;
+        return <WritingVisual text="Transcribing Data..." />;
       case 'Code Generator':
         return <CodeVisual />;
       case 'Reviewer Agent':
-        return <WritingVisual text="VERIFYING OUTPUT..." />;
+        return <WritingVisual text="Verifying Output..." />;
       default:
         return (
-           <div className="flex items-center gap-3 p-3 font-mono">
-             <SparklesIcon className="h-5 w-5 text-secondary animate-subtle-glow" style={{ filter: `drop-shadow(0 0 5px currentColor)` }}/>
-             <span className="text-sm font-semibold text-secondary uppercase">Executing Directive...</span>
+           <div className="flex items-center gap-3 p-3">
+             <SparklesIcon className="h-5 w-5 text-secondary"/>
+             <span className="text-sm font-medium text-secondary">Executing...</span>
            </div>
         );
     }
   };
 
   return (
-    <div className="bg-black/20 rounded-lg mb-4 overflow-hidden border border-border/30 shadow-inner">
+    <div className="bg-surface rounded-lg mb-2 overflow-hidden border border-border">
       {getVisualForAgent()}
     </div>
   );

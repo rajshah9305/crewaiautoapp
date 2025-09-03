@@ -2,69 +2,61 @@ import React from 'react';
 import ResearchIcon from '../icons/ResearchIcon';
 
 const styles = `
-.planet-base {
-  fill: url(#planet-gradient);
-  filter: drop-shadow(0 0 15px var(--glow-color-secondary));
+.node {
+  animation: pulse-node 2s ease-in-out infinite;
 }
-.ring {
-  fill: none;
-  stroke: var(--primary-color);
-  stroke-width: 0.75;
-  opacity: 0.7;
-  transform-origin: center;
+.node-1 { animation-delay: 0s; }
+.node-2 { animation-delay: 0.2s; }
+.node-3 { animation-delay: 0.4s; }
+.node-4 { animation-delay: 0.6s; }
+.node-5 { animation-delay: 0.8s; }
+
+.link {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: draw-link 2s ease-in-out infinite;
 }
-.scanner-arc {
-  fill: var(--accent-color);
-  opacity: 0.2;
-  transform-origin: center;
-  animation: sweep 4s ease-in-out infinite;
+.link-1 { animation-delay: 0.1s; }
+.link-2 { animation-delay: 0.3s; }
+.link-3 { animation-delay: 0.5s; }
+.link-4 { animation-delay: 0.7s; }
+
+@keyframes pulse-node {
+  0%, 100% { r: 3; opacity: 0.5; }
+  50% { r: 4; opacity: 1; }
 }
-.data-blip {
-  fill: var(--success-color);
-  animation: blink 1.5s infinite;
+
+@keyframes draw-link {
+  0% { stroke-dashoffset: 100; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -100; }
 }
-@keyframes rotate {
-  from { transform: rotate3d(0.5, 0.8, 0, 0deg); }
-  to { transform: rotate3d(0.5, 0.8, 0, 360deg); }
-}
-@keyframes sweep {
-  0% { transform: rotate(0deg) scaleY(0); }
-  50% { transform: rotate(180deg) scaleY(1); }
-  100% { transform: rotate(360deg) scaleY(0); }
-}
-@keyframes blink {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
-}
-`
+`;
 
 const ResearchVisual: React.FC = () => {
     return (
-        <div className="p-3 font-mono">
+        <div className="p-3">
             <style>{styles}</style>
-            <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs uppercase">
-                <ResearchIcon className="w-4 h-4 text-secondary" />
-                <span>Scanning Sector...</span>
+            <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs">
+                <ResearchIcon className="w-4 h-4" />
+                <span className="font-semibold">Analyzing Data...</span>
             </div>
-            <div className="w-full h-20 flex items-center justify-center bg-black/30 overflow-hidden border border-border/50 rounded-md">
-                <svg viewBox="-50 -50 100 100">
-                    <defs>
-                        <radialGradient id="planet-gradient" cx="25%" cy="25%">
-                            <stop offset="0%" stopColor="var(--secondary-color)" />
-                            <stop offset="100%" stopColor="var(--surface-color)" />
-                        </radialGradient>
-                    </defs>
-                    <g style={{ animation: 'rotate 20s linear infinite' }}>
-                      <circle className="planet-base" cx="0" cy="0" r="30" />
-                      {/* Rings */}
-                      <ellipse className="ring" cx="0" cy="0" rx="40" ry="15" transform="rotate(20)" />
-                      <ellipse className="ring" cx="0" cy="0" rx="35" ry="10" transform="rotate(-30)"/>
-                      {/* Data Points */}
-                      <circle className="data-blip" cx="-10" cy="-15" r="1.5" style={{ animationDelay: '0.5s' }}/>
-                      <circle className="data-blip" cx="20" cy="10" r="1" style={{ animationDelay: '1s' }}/>
-                      <circle className="data-blip" cx="5" cy="22" r="1.2" style={{ animationDelay: '1.5s' }}/>
+            <div className="w-full h-24 flex items-center justify-center bg-background overflow-hidden border border-border rounded-md">
+                <svg viewBox="0 0 100 60">
+                    <g fill="var(--primary-color)" stroke="var(--primary-color)" strokeWidth="0.5">
+                        {/* Links */}
+                        <line x1="20" y1="30" x2="50" y2="15" className="link link-1" />
+                        <line x1="20" y1="30" x2="50" y2="45" className="link link-2" />
+                        <line x1="50" y1="15" x2="80" y2="30" className="link link-3" />
+                        <line x1="50" y1="45" x2="80" y2="30" className="link link-4" />
+                        <line x1="50" y1="15" x2="50" y2="45" className="link link-1" />
+                        
+                        {/* Nodes */}
+                        <circle cx="20" cy="30" r="3" className="node node-1" />
+                        <circle cx="50" cy="15" r="3" className="node node-2" />
+                        <circle cx="50" cy="45" r="3" className="node node-3" />
+                        <circle cx="80" cy="30" r="3" className="node node-4" />
                     </g>
-                     <path className="scanner-arc" d="M 0 0 L 45 0 A 45 45 0 0 1 31.82 31.82 z" />
                 </svg>
             </div>
         </div>

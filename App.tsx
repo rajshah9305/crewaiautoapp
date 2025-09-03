@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import AgentStatus from './components/AgentStatus';
 import TaskList from './components/TaskList';
-import ChatInterface from './components/ChatInterface';
 import CommandPalette from './components/CommandPalette';
-import { AppState, Task, LogEntry, LogEntryType } from './types';
+import { AppState, Task, LogEntry, LogEntryType, TaskStatus } from './types';
 import * as agentService from './services/agentService';
 import RestartIcon from './components/icons/RestartIcon';
 import { AGENT_ROLES } from './constants';
 import SidebarToggleIcon from './components/icons/SidebarToggleIcon';
 import CrewAILogo from './components/icons/CrewAILogo';
+import Starfield from './components/Starfield';
+import MissionBriefing from './components/MissionBriefing';
+import ActivityMonitor from './components/ActivityMonitor';
+import FinalReport from './components/FinalReport';
+import MissionStarmap from './components/MissionStarmap';
+import StellarCartographyIcon from './components/icons/StellarCartographyIcon';
 
 const App: React.FC = () => {
   const [goal, setGoal] = useState<string>('');
@@ -16,9 +21,9 @@ const App: React.FC = () => {
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [appState, setAppState] = useState<AppState>('IDLE');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [currentTaskIndex, setCurrentTaskIndex] = useState<number>(0);
   const [startTime, setStartTime] = useState<number | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isStarmapOpen, setIsStarmapOpen] = useState<boolean>(true);
   const [hasSavedPlan, setHasSavedPlan] = useState<boolean>(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
@@ -32,6 +37,21 @@ const App: React.FC = () => {
     if (localStorage.getItem('crewai_saved_plan')) {
         setHasSavedPlan(true);
     }
+    const handleResize = () => {
+        if (window.innerWidth < 768) {
+            setIsSidebarOpen(false);
+            setIsStarmapOpen(false);
+        } else if (window.innerWidth < 1024) {
+            setIsSidebarOpen(true);
+            setIsStarmapOpen(false);
+        } else {
+            setIsSidebarOpen(true);
+            setIsStarmapOpen(true);
+        }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   
   useEffect(() => {
@@ -83,71 +103,95 @@ const App: React.FC = () => {
      });
   }, []);
 
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setGoal('');
     setTasks([]);
     setLogEntries([]);
     setAppState('IDLE');
     setErrorMessage(null);
-    setCurrentTaskIndex(0);
     setStartTime(null);
-    setIsSidebarOpen(false);
     setChatInput('');
-  };
+    if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true);
+        setIsStarmapOpen(true);
+    } else if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true);
+        setIsStarmapOpen(false);
+    } else {
+        setIsSidebarOpen(false);
+        setIsStarmapOpen(false);
+    }
+  }, []);
+
+  const updateTaskStatus = useCallback((taskId: string, status: TaskStatus, error?: string) => {
+    setTasks(prevTasks => {
+        const newTasks = prevTasks.map(t => 
+            t.id === taskId ? { ...t, status, error: error || undefined } : t
+        );
+        if (status !== 'completed') return newTasks;
+        const completedTaskIds = new Set(newTasks.filter(t => t.status === 'completed').map(t => t.id));
+        return newTasks.map(task => {
+            if (task.status === 'blocked' && task.dependencies.every(depId => completedTaskIds.has(depId))) {
+                return { ...task, status: 'pending' };
+            }
+            return task;
+        });
+    });
+  }, []);
   
-  const handleDeploy = async () => {
+  const handleDeploy = useCallback(async () => {
     if (!chatInput.trim() || appState !== 'IDLE') return;
     
     const missionGoal = chatInput;
-    resetState();
     setGoal(missionGoal);
-    addLogEntry('User', missionGoal, 'user');
+    setTasks([]);
+    setLogEntries([]);
     setAppState('PLANNING');
-    addLogEntry('System', 'OBJECTIVE RECEIVED. CALCULATING MISSION VECTORS...', 'system');
+    setErrorMessage(null);
+    setStartTime(null);
+    
+    addLogEntry('User', missionGoal, 'user');
+    addLogEntry('System', 'Objective received. Planning mission...', 'system');
 
     try {
       const plannedTasks = await agentService.planTasks(missionGoal);
-      setTasks(plannedTasks);
-      addLogEntry('System', `MISSION PLAN ESTABLISHED WITH ${plannedTasks.length} TASKS. AWAITING COMMAND AUTHORIZATION.`, 'system');
+      const tasksWithInitialStatus: Task[] = plannedTasks.map(task => ({
+          ...task,
+          status: (task.dependencies?.length ?? 0) === 0 ? 'pending' : 'blocked'
+      }));
+      setTasks(tasksWithInitialStatus);
+      addLogEntry('System', `Mission plan created with ${plannedTasks.length} tasks. Please review and approve the crew manifest.`, 'system');
       setAppState('AWAITING_APPROVAL');
       setIsSidebarOpen(true);
     } catch (error) {
       const err = error instanceof Error ? error.message : "An unknown error occurred during planning.";
       setErrorMessage(err);
       setAppState('ERROR');
-      addLogEntry('System', `CRITICAL_ERROR during planning phase: ${err}`, 'error');
+      addLogEntry('System', `Critical error during planning phase: ${err}`, 'error');
     }
-  };
+  }, [chatInput, appState, addLogEntry]);
   
-  const handleApproveAndRun = () => {
+  const handleApproveAndRun = useCallback(() => {
       if (appState !== 'AWAITING_APPROVAL') return;
       setStartTime(Date.now());
       setAppState('EXECUTING');
-      addLogEntry('System', 'AUTHORIZATION CONFIRMED. ENGAGING AGENT CREW. MISSION IS A GO.', 'system');
-      if (window.innerWidth < 768) { // Close sidebar on mobile after launch
-          setIsSidebarOpen(false);
-      }
-  };
+      addLogEntry('System', 'Approval confirmed. Engaging agent crew. Mission is underway.', 'system');
+      if (window.innerWidth < 768) setIsSidebarOpen(false);
+  }, [appState, addLogEntry]);
   
-  const handleRetryTask = (taskId: string) => {
-    const taskIndex = tasks.findIndex(t => t.id === taskId);
-    if (taskIndex === -1) return;
-    
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'pending', error: undefined } : t));
-    
+  const handleRetryTask = useCallback((taskId: string) => {
+    const taskToRetry = tasks.find(t => t.id === taskId);
+    if (!taskToRetry) return;
+    updateTaskStatus(taskId, 'pending');
     if (appState === 'ERROR') {
       setErrorMessage(null);
       setAppState('EXECUTING');
     }
-    
-    setCurrentTaskIndex(taskIndex);
-  };
+  }, [tasks, appState, updateTaskStatus]);
 
-  const handleUpdateTask = (updatedTask: Task) => {
+  const handleUpdateTask = useCallback((updatedTask: Task) => {
     setTasks(prev => prev.map(t => {
         if (t.id === updatedTask.id) {
-            // If we are updating a task that was in an error state,
-            // reset its status to pending so it can be retried after modification.
             if (t.status === 'error') {
                 return { ...updatedTask, status: 'pending', error: undefined };
             }
@@ -155,28 +199,29 @@ const App: React.FC = () => {
         }
         return t;
     }));
-  };
+  }, []);
   
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = useCallback((taskId: string) => {
     setTasks(prev => prev.filter(t => t.id !== taskId));
-  };
+  }, []);
   
-  const handleAddTask = () => {
+  const handleAddTask = useCallback(() => {
     const newTask: Task = {
       id: `task-${tasks.length}-${Date.now()}`,
       title: 'New Task',
       description: 'Define the objective for this task.',
       agent: AGENT_ROLES[0],
       status: 'pending',
+      dependencies: [],
     };
     setTasks(prev => [...prev, newTask]);
-  };
+  }, [tasks.length]);
 
   const savePlan = useCallback(() => {
     if (goal && tasks.length > 0) {
         localStorage.setItem('crewai_saved_plan', JSON.stringify({ goal, tasks }));
         setHasSavedPlan(true);
-        addLogEntry('System', 'Mission plan saved to local archives.', 'system');
+        addLogEntry('System', 'Mission plan saved.', 'system');
     }
   }, [goal, tasks, addLogEntry]);
 
@@ -185,12 +230,13 @@ const App: React.FC = () => {
     if (savedPlan) {
       try {
         resetState();
-        const { goal, tasks } = JSON.parse(savedPlan);
-        if (typeof goal === 'string' && Array.isArray(tasks)) {
-            setGoal(goal);
-            setTasks(tasks);
+        const { goal: savedGoal, tasks: savedTasks } = JSON.parse(savedPlan);
+        if (typeof savedGoal === 'string' && Array.isArray(savedTasks)) {
+            setGoal(savedGoal);
+            setChatInput(savedGoal);
+            setTasks(savedTasks);
             setAppState('AWAITING_APPROVAL');
-            addLogEntry('System', 'Saved mission plan loaded from archives. Review and launch.', 'system');
+            addLogEntry('System', 'Saved mission plan loaded. Review and launch.', 'system');
             setIsSidebarOpen(true);
         } else {
             throw new Error("Saved plan is malformed.");
@@ -202,56 +248,51 @@ const App: React.FC = () => {
         addLogEntry('System', 'Error: Could not load saved plan. The data was corrupted and has been cleared.', 'error');
       }
     }
-  }, [addLogEntry]);
+  }, [addLogEntry, resetState]);
   
-  const handleCommandSelectTemplate = (prompt: string) => {
+  const handleCommandSelectTemplate = useCallback((prompt: string) => {
     setChatInput(prompt);
     document.getElementById('mission-goal-input')?.focus();
-  };
+  }, []);
 
   useEffect(() => {
-    const execute = async () => {
-      if (appState === 'EXECUTING' && currentTaskIndex < tasks.length) {
-        const currentTask = tasks[currentTaskIndex];
-        if (currentTask.status === 'completed' || currentTask.status === 'in-progress') {
-            if (currentTask.status === 'completed') setCurrentTaskIndex(prev => prev + 1);
-            return;
-        }
-
-        try {
-            setTasks(prev => prev.map(t => t.id === currentTask.id ? { ...t, status: 'in-progress' } : t));
-            addLogEntry('System', `Executing Task: "${currentTask.title}" // Agent Assigned: ${currentTask.agent}`, 'system');
-            addLogEntry(currentTask.agent, ``, 'thought', true);
-
-            const agentContextLogs = logEntriesRef.current.filter(e => e.type !== 'user');
-            await agentService.executeTaskStream(
-              currentTask,
-              goal,
-              agentContextLogs,
-              (chunk) => updateLastLogEntry(chunk),
-              () => {
-                markLastLogFinished();
-                setTasks(prev => prev.map(t => t.id === currentTask.id ? { ...t, status: 'completed' } : t));
-                setCurrentTaskIndex(prev => prev + 1);
-              }
-            );
-        } catch(error) {
-            const err = error instanceof Error ? error.message : "An unknown task execution error occurred.";
-            markLastLogFinished();
-            setTasks(prev => prev.map(t => t.id === currentTask.id ? { ...t, status: 'error', error: err } : t));
-            setAppState('ERROR');
-            setErrorMessage(err);
-            addLogEntry('System', `Execution failed for task "${currentTask.title}". Halting mission. You may retry or modify the failed task.`, 'error');
-        }
-
-      } else if (appState === 'EXECUTING' && currentTaskIndex >= tasks.length && tasks.length > 0) {
-        addLogEntry('System', 'All tasks complete. Compiling final mission debrief.', 'system');
+    const execute = () => {
+      if (appState !== 'EXECUTING') return;
+      const allTasksDone = tasks.length > 0 && tasks.every(t => t.status === 'completed');
+      if (allTasksDone) {
+        addLogEntry('System', 'All tasks complete. Generating final report.', 'system');
         setAppState('FINALIZING');
+        return;
       }
+      const runnableTasks = tasks.filter(task => task.status === 'pending');
+      if (runnableTasks.length === 0) return;
+      
+      const taskIdsToStart = runnableTasks.map(t => t.id);
+      setTasks(prev => prev.map(t => taskIdsToStart.includes(t.id) ? { ...t, status: 'in-progress' } : t));
+      runnableTasks.forEach(task => {
+        const executeSingleTask = async () => {
+          try {
+            addLogEntry('System', `Executing Task: "${task.title}" // Agent: ${task.agent}`, 'system');
+            addLogEntry(task.agent, ``, 'thought', true);
+            const agentContextLogs = logEntriesRef.current.filter(e => e.type !== 'user');
+            await agentService.executeTaskStream(task, goal, agentContextLogs, updateLastLogEntry, () => {
+                markLastLogFinished();
+                updateTaskStatus(task.id, 'completed');
+            });
+          } catch(error) {
+              const err = error instanceof Error ? error.message : "An unknown task execution error occurred.";
+              markLastLogFinished();
+              updateTaskStatus(task.id, 'error', err);
+              setAppState('ERROR');
+              setErrorMessage(err);
+              addLogEntry('System', `Execution failed for task "${task.title}". Halting mission. You may retry or modify the failed task.`, 'error');
+          }
+        };
+        executeSingleTask();
+      });
     };
     execute();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appState, currentTaskIndex]);
+  }, [appState, tasks, goal, addLogEntry, markLastLogFinished, updateLastLogEntry, updateTaskStatus]);
   
   useEffect(() => {
     const finalize = async () => {
@@ -259,7 +300,7 @@ const App: React.FC = () => {
             try {
                 const agentContextLogs = logEntries.filter(e => e.type !== 'user');
                 const output = await agentService.generateFinalOutput(goal, agentContextLogs);
-                addLogEntry('System', `## Mission Debrief\n\n${output}`, 'system');
+                addLogEntry('System', output, 'final_report');
                 setAppState('FINISHED');
             } catch (error) {
                 const err = error instanceof Error ? error.message : "An unknown error occurred during finalization.";
@@ -272,10 +313,39 @@ const App: React.FC = () => {
     finalize();
   }, [appState, goal, logEntries, addLogEntry]);
 
-  const showRoster = appState !== 'IDLE' && appState !== 'PLANNING';
+  const showPanels = appState !== 'IDLE' && appState !== 'PLANNING';
+
+  const renderCenterPanel = () => {
+    const finalReportEntry = logEntries.find(e => e.type === 'final_report');
+    switch (appState) {
+        case 'IDLE':
+        case 'PLANNING':
+        case 'AWAITING_APPROVAL':
+            return (
+                <MissionBriefing
+                    onSendMessage={handleDeploy}
+                    onLoadPlan={loadPlan}
+                    hasSavedPlan={hasSavedPlan}
+                    isLoading={appState === 'PLANNING'}
+                    appState={appState}
+                    inputValue={chatInput}
+                    onInputChange={setChatInput}
+                />
+            );
+        case 'EXECUTING':
+        case 'ERROR':
+            return <ActivityMonitor tasks={tasks} logEntries={logEntries} />;
+        case 'FINALIZING':
+        case 'FINISHED':
+            return finalReportEntry ? <FinalReport report={finalReportEntry} /> : <ActivityMonitor tasks={tasks} logEntries={logEntries} />;
+        default:
+            return null;
+    }
+  }
 
   return (
     <>
+      <Starfield />
       <CommandPalette
         isOpen={isPaletteOpen}
         onClose={() => setIsPaletteOpen(false)}
@@ -284,68 +354,66 @@ const App: React.FC = () => {
         onNewMission={resetState}
         hasSavedPlan={hasSavedPlan}
       />
-      <div className="w-full h-screen flex flex-col font-sans overflow-hidden p-2 sm:p-4">
-          <header className="w-full flex items-center justify-between animate-fadeIn py-2 px-4 bg-surface/80 backdrop-blur-md border border-border/50 rounded-lg shadow-lg mb-4">
+      <div className="w-full h-screen flex flex-col font-sans overflow-hidden p-2 sm:p-4 relative">
+          <header className="w-full flex items-center justify-between py-2 px-4 bg-surface/80 backdrop-blur-md border border-border rounded-lg shadow-md mb-4 animate-fadeInUp z-20">
               <div className="flex items-center gap-1 sm:gap-3">
-                  {showRoster && (
-                    <button aria-label="Open Crew Roster" onClick={() => setIsSidebarOpen(true)} className="p-2 rounded-md hover:bg-surface-light transition-colors md:hidden">
+                  {showPanels && (
+                    <button aria-label="Toggle Crew Manifest" onClick={() => setIsSidebarOpen(p => !p)} className="p-2 rounded-md hover:bg-border transition-colors">
                         <SidebarToggleIcon/>
                     </button>
                   )}
                   <div className="flex items-center gap-3 group">
-                      <CrewAILogo className="h-8 w-8 text-text-primary"/>
-                      <h1 className="text-xl md:text-2xl font-bold text-text-primary hidden sm:block uppercase tracking-widest font-sans">
-                        CrewAI Mission Control
+                      <CrewAILogo className="h-8 w-8 text-primary"/>
+                      <h1 className="text-xl md:text-2xl font-semibold text-text-primary hidden sm:block">
+                        Mission Control
                       </h1>
                   </div>
               </div>
               <div className="flex-1 flex justify-center px-4">
                 <AgentStatus state={appState} error={errorMessage} startTime={startTime} />
               </div>
-              {appState !== 'IDLE' && (
-                <button onClick={resetState} className="group bg-error/90 border-b-2 border-red-900 px-3 sm:px-4 py-2 rounded-md flex items-center gap-2 hover:bg-error transition-all text-white font-bold active:scale-95 active:border-b-0">
+              <div className="flex items-center gap-2">
+                {showPanels && (
+                    <button aria-label="Toggle Mission Starmap" onClick={() => setIsStarmapOpen(p => !p)} className="p-2 rounded-md hover:bg-border transition-colors hidden lg:block">
+                        <StellarCartographyIcon className="h-6 w-6"/>
+                    </button>
+                )}
+                <button onClick={resetState} className="group bg-surface border border-border px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 hover:border-primary/50 transition-all text-text-primary font-medium active:scale-95 shadow-sm">
                     <RestartIcon className="h-5 w-5"/>
                     <span className="hidden sm:inline">New Mission</span>
                 </button>
-              )}
+              </div>
           </header>
 
-          <main className="flex-1 min-h-0 flex gap-4">
-              {/* Overlay for mobile sidebar */}
-              <div 
-                className={`fixed inset-0 bg-black/60 z-30 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                onClick={() => setIsSidebarOpen(false)}
-              ></div>
-              
-              {/* Sidebar */}
-              <aside className={`fixed top-0 left-0 w-80 md:w-96 h-full z-40 md:relative md:z-auto md:top-auto md:left-auto md:h-auto transform transition-transform duration-300 ease-in-out ${isSidebarOpen && showRoster ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:block ${!showRoster ? 'hidden' : ''}`}>
-                <TaskList 
-                    tasks={tasks} 
-                    appState={appState} 
-                    currentTaskIndex={currentTaskIndex}
-                    onApprove={handleApproveAndRun} 
-                    onReset={resetState}
-                    onUpdateTask={handleUpdateTask}
-                    onDeleteTask={handleDeleteTask}
-                    onAddTask={handleAddTask}
-                    onClose={() => setIsSidebarOpen(false)}
-                    onRetryTask={handleRetryTask}
-                    onSavePlan={savePlan}
-                />
+          <main className="flex-1 min-h-0 flex gap-4 transition-all duration-300">
+              {/* Left Panel: Crew Manifest */}
+              <aside className={`transition-all duration-300 ease-in-out ${isSidebarOpen && showPanels ? 'w-80 md:w-96' : 'w-0'} ${!showPanels ? 'hidden' : 'flex'}`}>
+                <div className={`w-80 md:w-96 h-full transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
+                    {isSidebarOpen && <TaskList 
+                        tasks={tasks} 
+                        appState={appState} 
+                        onApprove={handleApproveAndRun} 
+                        onReset={resetState}
+                        onUpdateTask={handleUpdateTask}
+                        onDeleteTask={handleDeleteTask}
+                        onAddTask={handleAddTask}
+                        onRetryTask={handleRetryTask}
+                        onSavePlan={savePlan}
+                    />}
+                </div>
               </aside>
 
-              <div className="flex-1 flex justify-center min-w-0">
-                  <ChatInterface
-                      logEntries={logEntries}
-                      onSendMessage={handleDeploy}
-                      onLoadPlan={loadPlan}
-                      hasSavedPlan={hasSavedPlan}
-                      isLoading={appState === 'PLANNING'}
-                      appState={appState}
-                      inputValue={chatInput}
-                      onInputChange={setChatInput}
-                  />
+              {/* Center Panel: Operations */}
+              <div className="flex-1 flex justify-center min-w-0 h-full">
+                  {renderCenterPanel()}
               </div>
+
+              {/* Right Panel: Mission Starmap */}
+              <aside className={`transition-all duration-300 ease-in-out hidden lg:flex ${isStarmapOpen && showPanels ? 'w-80 md:w-96' : 'w-0'}`}>
+                <div className={`w-80 md:w-96 h-full transition-opacity duration-300 ${isStarmapOpen ? 'opacity-100' : 'opacity-0'}`}>
+                    {isStarmapOpen && <MissionStarmap tasks={tasks} />}
+                </div>
+              </aside>
           </main>
       </div>
     </>

@@ -1,0 +1,87 @@
+import React from 'react';
+import { marked } from 'marked';
+import { LogEntry } from '../types';
+import CodeBlock from './CodeBlock';
+import DownloadIcon from './icons/DownloadIcon';
+import CaptainsLogIcon from './icons/CaptainsLogIcon';
+
+interface FinalReportProps {
+    report: LogEntry;
+}
+
+const renderer = new marked.Renderer();
+// FIX: Bypassing incompatible type definition for marked's heading renderer. The project's @types/marked likely expects a different function signature.
+(renderer.heading as any) = (text: string, level: number) => `<h${level} class="text-text-primary font-semibold mt-6 mb-2 pb-1 border-b border-border">${text}</h${level}>`;
+renderer.strong = (text: string) => `<strong class="font-semibold text-text-primary">${text}</strong>`;
+// FIX: Bypassing incompatible type definition for marked's list renderer.
+(renderer.list as any) = (body: string, ordered: boolean) => {
+    const tag = ordered ? 'ol' : 'ul';
+    const className = ordered ? 'list-decimal' : 'list-disc';
+    return `<${tag} class="${className} pl-6 space-y-2">${body}</${tag}>`;
+}
+renderer.paragraph = (text: string) => `<p class="text-text-secondary leading-relaxed">${text}</p>`;
+
+marked.setOptions({ renderer });
+
+
+const FinalReport: React.FC<FinalReportProps> = ({ report }) => {
+
+    const handleDownload = () => {
+        const blob = new Blob([report.content], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'crewai-mission-report.md';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const renderContent = () => {
+        const parts = report.content.split(/(```(?:[\w-]*)\n[\s\S]*?\n```)/g);
+        return parts.map((part, index) => {
+            const codeMatch = part.match(/```(?:[\w-]*)\n([\s\S]*?)\n```/);
+            if (codeMatch && codeMatch[1]) {
+                return <CodeBlock key={index} code={codeMatch[1]} />;
+            } else if (part.trim()) {
+                try {
+                    const parsedHtml = marked.parse(part, { gfm: true, breaks: true }) as string;
+                    return <div key={index} dangerouslySetInnerHTML={{ __html: parsedHtml }} />;
+                } catch (e) {
+                    return <div key={index}><pre className="whitespace-pre-wrap font-sans">{part}</pre></div>;
+                }
+            }
+            return null;
+        });
+    };
+
+    return (
+        <div className="h-full w-full max-w-4xl mx-auto flex flex-col animate-fadeInUp">
+            <div className="p-4 sm:p-6 mb-4">
+                 <h2 className="text-2xl font-bold text-text-primary text-center flex items-center justify-center gap-3">
+                    <CaptainsLogIcon className="h-7 w-7 text-secondary"/>
+                    Mission Report
+                </h2>
+            </div>
+
+            <div className="flex-1 overflow-y-auto bg-surface border border-border rounded-xl p-4 sm:p-6">
+                <div className="prose prose-sm md:prose-base max-w-none">
+                    {renderContent()}
+                </div>
+            </div>
+
+            <div className="mt-4 flex justify-center">
+                <button 
+                    onClick={handleDownload} 
+                    className="flex items-center gap-2 text-sm font-semibold text-primary bg-primary-light px-4 py-2 rounded-md hover:bg-orange-200/20 transition-colors border border-primary/20"
+                >
+                    <DownloadIcon className="h-5 w-5" />
+                    Download Report
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default FinalReport;

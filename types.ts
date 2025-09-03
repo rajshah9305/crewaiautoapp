@@ -1,4 +1,4 @@
-export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'error';
+export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'error' | 'blocked';
 
 export interface Task {
   id: string;
@@ -6,10 +6,11 @@ export interface Task {
   description: string;
   agent: string;
   status: TaskStatus;
+  dependencies: string[];
   error?: string;
 }
 
-export type LogEntryType = 'system' | 'thought' | 'action' | 'observation' | 'error' | 'user';
+export type LogEntryType = 'system' | 'thought' | 'action' | 'observation' | 'error' | 'user' | 'final_report';
 
 export interface LogEntry {
   id: string;
