@@ -4,9 +4,10 @@ const styles = `
 .bar {
     width: 4px;
     height: 18px;
-    background-color: white;
+    background-color: currentColor;
     border-radius: 2px;
     animation: pulse 1.2s infinite ease-in-out;
+    box-shadow: 0 0 5px currentColor;
 }
 .bar:nth-child(2) {
     animation-delay: 0.2s;

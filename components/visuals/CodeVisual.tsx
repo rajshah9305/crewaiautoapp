@@ -1,44 +1,66 @@
 import React from 'react';
-import TypingAnimation from './TypingAnimation';
 import CodeIcon from '../icons/CodeIcon';
 
+const styles = `
+.circuit-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 0.5;
+}
+.conduit-path {
+  fill: none;
+  stroke: var(--secondary-color);
+  stroke-width: 1;
+  opacity: 0.5;
+  filter: drop-shadow(0 0 3px var(--glow-color-secondary));
+}
+.energy-particle {
+  fill: var(--primary-color);
+  stroke: #fff;
+  stroke-width: 0.5;
+  filter: drop-shadow(0 0 5px var(--primary-color));
+}
+`;
+
 const CodeVisual: React.FC = () => {
+  const paths = [
+    { d: "M 10 10 L 40 10 L 40 30 L 70 30", dur: "3s" },
+    { d: "M 10 70 L 40 70 L 40 50 L 70 50", dur: "3.5s" },
+    { d: "M 190 40 L 160 40 L 160 20 L 130 20", dur: "4s" },
+    { d: "M 10 40 L 100 40 L 100 60 L 130 60", dur: "4.5s" },
+    { d: "M 190 70 L 160 70 L 160, 50 L 130 50", dur: "5s" },
+  ];
+
   return (
-    <div className="p-4 font-mono text-sm bg-background/50 rounded-lg">
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
-        <div className="flex items-center gap-2 text-text-secondary">
-          <CodeIcon className="w-5 h-5 text-secondary" />
-          <span>Generating Code...</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500"></span>
-          <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
-          <span className="w-3 h-3 rounded-full bg-green-500"></span>
-        </div>
+    <div className="p-3 font-mono">
+      <style>{styles}</style>
+      <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs">
+        <CodeIcon className="w-4 h-4 text-secondary" style={{ filter: `drop-shadow(0 0 3px currentColor)` }} />
+        <span>COMPILING LOGIC MATRIX...</span>
       </div>
-      <div className="text-left">
-        <p>
-          <span className="text-purple-400">import</span>{" "}
-          <span className="text-text-primary">React</span>{" "}
-          <span className="text-purple-400">from</span>{" "}
-          <span className="text-green-400">'react'</span>;
-        </p>
-        <p className="mt-2">
-          <span className="text-blue-400">const</span>{" "}
-          <span className="text-yellow-300">NewComponent</span> = () =&gt; {"{"}
-        </p>
-        <p className="pl-4">
-          <span className="text-purple-400">return</span> (
-        </p>
-        <p className="pl-8">
-          <span className="text-gray-500">&lt;</span>
-          <span className="text-red-400">div</span>
-          <span className="text-gray-500">&gt;</span>
-          <TypingAnimation />
-        </p>
-        <p className="pl-4">)
-        </p>
-        <p>{"}"};</p>
+      <div className="w-full h-24 flex items-center justify-center bg-black/30 overflow-hidden border border-border/50 rounded-md">
+        <svg viewBox="0 0 200 80" width="200" height="80">
+          <defs>
+            <pattern id="circuit-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 0 10 L 10 10 L 10 0 M 10 20 L 10 10 L 20 10" className="circuit-bg" />
+            </pattern>
+          </defs>
+          <rect width="200" height="80" fill="url(#circuit-pattern)" />
+          
+          {paths.map((p, i) => (
+            <g key={i}>
+              <path d={p.d} className="conduit-path" />
+              <circle r="2" className="energy-particle">
+                <animateMotion
+                  dur={p.dur}
+                  repeatCount="indefinite"
+                  path={p.d}
+                  begin={`${i * 0.5}s`}
+                />
+              </circle>
+            </g>
+          ))}
+        </svg>
       </div>
     </div>
   );

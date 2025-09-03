@@ -3,93 +3,177 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CrewAI Agent Platform</title>
+    <title>CrewAI Mission Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Custom Tooltip Styling */
-      [data-tooltip] {
-        position: relative;
-        cursor: pointer;
+      :root {
+        --bg-color: #030613;
+        --surface-color: rgba(10, 25, 47, 0.75);
+        --surface-light: #1F2937;
+        --border-color: #00A2C7;
+        --primary-color: #00E5FF;
+        --secondary-color: #94A3B8;
+        --text-primary-color: #E5E7EB;
+        --text-secondary-color: #94A3B8;
+        --accent-color: #FBBF24; /* Amber */
+        --success-color: #39FF14; /* Neon Green */
+        --error-color: #F43F5E; /* Rose Red */
+        
+        --glow-color-primary: rgba(0, 229, 255, 0.4);
+        --glow-color-accent: rgba(251, 191, 36, 0.4);
+        --glow-color-error: rgba(244, 63, 94, 0.5);
+        --glow-color-success: rgba(57, 255, 20, 0.5);
+        --glow-color-secondary: rgba(148, 163, 184, 0.3);
       }
-      [data-tooltip]::before {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 110%;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 6px 10px;
-        background-color: #0A0920; /* background */
-        color: #F0F2F5; /* text-primary */
-        border: 1px solid rgba(68, 63, 127, 0.5); /* border */
-        border-radius: 6px;
-        font-size: 12px;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
-        z-index: 10;
+
+      @keyframes scanline {
+        0% { transform: translateY(-10%); }
+        100% { transform: translateY(100%); }
+      }
+      
+      @keyframes subtle-flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.98; }
+      }
+
+      @keyframes holographic-scan {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-secondary-color);
+        overflow-y: auto;
+        background-attachment: fixed;
+      }
+      
+      .scanline-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(10, 15, 26, 0) 0%, rgba(10, 15, 26, 0.05) 50%, rgba(10, 15, 26, 0) 100%);
         pointer-events: none;
+        z-index: 100;
+        opacity: 0.5;
       }
-      [data-tooltip]:hover::before {
-        opacity: 1;
-        visibility: visible;
+      .scanline-overlay::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--primary-color);
+        opacity: 0.03;
+        animation: scanline 12s linear infinite;
       }
+      
+      /* Vignette effect for immersion */
+      body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 50;
+        box-shadow: inset 0 0 8rem 4rem var(--bg-color);
+      }
+
+      /* Custom Selections */
+      ::selection {
+        background-color: var(--primary-color);
+        color: var(--bg-color);
+        text-shadow: none;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--surface-color);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+      }
+      ::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+      
+      .holographic-border {
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+      }
+      .holographic-border::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(110deg, transparent 20%, var(--primary-color), transparent 80%);
+        opacity: 0.15;
+        transform: skewX(-30deg);
+        animation: holographic-scan 3s linear infinite;
+      }
+
     </style>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              'background': '#0A0920',
-              'surface': 'rgba(23, 21, 58, 0.6)', /* Adjusted for glassmorphism */
-              'surface-light': 'rgba(36, 33, 91, 0.6)', /* Adjusted for glassmorphism */
-              'border': 'rgba(68, 63, 127, 0.5)',
-              'primary': '#F021B5',
-              'primary-light': '#FF7ED7',
-              'secondary': '#00F5D4',
-              'text-primary': '#F0F2F5',
-              'text-secondary': '#A9A5D5',
-              'success': '#32CD32',
-              'error': '#FF5252'
+              'background': 'var(--bg-color)',
+              'surface': 'var(--surface-color)',
+              'surface-light': 'var(--surface-light)',
+              'border': 'var(--border-color)',
+              'primary': 'var(--primary-color)',
+              'secondary': 'var(--secondary-color)',
+              'accent': 'var(--accent-color)',
+              'text-primary': 'var(--text-primary-color)',
+              'text-secondary': 'var(--text-secondary-color)',
+              'success': 'var(--success-color)',
+              'error': 'var(--error-color)',
             },
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['Fira Code', 'monospace'],
+              sans: ['Exo 2', 'sans-serif'],
+              mono: ['Roboto Mono', 'monospace'],
             },
             keyframes: {
-              aurora: {
-                '0%': { backgroundPosition: '0% 50%' },
-                '50%': { backgroundPosition: '100% 50%' },
-                '100%': { backgroundPosition: '0% 50%' },
-              },
               fadeIn: {
                 '0%': { opacity: 0, transform: 'translateY(10px)' },
                 '100%': { opacity: 1, transform: 'translateY(0)' },
               },
-              pulseGlow: {
-                '0%, 100%': { boxShadow: '0 0 15px 0px rgba(240, 33, 181, 0.5), 0 0 5px 0px rgba(0, 245, 212, 0.5)' },
-                '50%': { boxShadow: '0 0 25px 6px rgba(240, 33, 181, 0.5), 0 0 10px 0px rgba(0, 245, 212, 0.5)' }
+              pulseBg: {
+                '0%, 100%': { backgroundColor: 'rgba(0, 229, 255, 0.05)' },
+                '50%': { backgroundColor: 'rgba(0, 229, 255, 0.15)' },
               },
-              subtleFloat: {
-                '0%, 100%': { transform: 'translateY(0px)' },
-                '50%': { transform: 'translateY(-4px)' }
+              'holographic-shimmer': {
+                '0%, 100%': { 'borderColor': 'var(--primary-color)', 'boxShadow': '0 0 8px var(--glow-color-primary)' },
+                '50%': { 'borderColor': 'var(--secondary-color)', 'boxShadow': '0 0 12px var(--glow-color-secondary)' },
               },
-              ringGlow: {
-                 '0%, 100%': { boxShadow: '0 0 0 2px rgba(240, 33, 181, 0.2), 0 0 0 4px rgba(240, 33, 181, 0.1)' },
-                 '50%': { boxShadow: '0 0 0 2px rgba(240, 33, 181, 0.4), 0 0 0 4px rgba(240, 33, 181, 0.2)' }
+              'subtle-glow': {
+                '0%, 100%': { filter: 'drop-shadow(0 0 3px currentColor)' },
+                '50%': { filter: 'drop-shadow(0 0 6px currentColor)' },
               },
-              buttonPress: {
-                '0%, 100%': { transform: 'scale(1)' },
-                '50%': { transform: 'scale(0.97)' }
-              }
             },
             animation: {
-              aurora: 'aurora 15s ease infinite',
               fadeIn: 'fadeIn 0.5s ease-out forwards',
-              pulseGlow: 'pulseGlow 2.5s ease-in-out infinite',
-              subtleFloat: 'subtleFloat 6s ease-in-out infinite',
-              ringGlow: 'ringGlow 2s ease-in-out infinite',
-              buttonPress: 'buttonPress 0.2s ease-out'
+              'pulse-bg': 'pulseBg 2.5s ease-in-out infinite',
+              'holographic-shimmer': 'holographic-shimmer 3s ease-in-out infinite',
+              'subtle-glow': 'subtle-glow 2s ease-in-out infinite',
             }
           }
         }
@@ -97,7 +181,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700;900&family=Roboto+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <script type="importmap">
 {
   "imports": {
@@ -110,9 +194,9 @@
 }
 </script>
 </head>
-  <body class="bg-background text-text-primary">
-    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/30 opacity-20 animate-aurora -z-10"></div>
-    <div id="root"></div>
+  <body class="bg-background text-text-primary font-sans">
+    <div id="root" class="relative z-10"></div>
+    <div class="scanline-overlay"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

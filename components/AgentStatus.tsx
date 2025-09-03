@@ -4,6 +4,7 @@ import CheckCircleIcon from './icons/CheckCircleIcon';
 import TimerIcon from './icons/TimerIcon';
 import SparklesIcon from './icons/SparklesIcon';
 import XIcon from './icons/XIcon';
+import Loader from './Loader';
 
 interface AgentStatusProps {
   state: AppState;
@@ -39,13 +40,13 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime, error }) =>
   const getStatusInfo = () => {
     switch (state) {
       case 'IDLE': return null;
-      case 'PLANNING': return { text: 'Planning...', color: 'text-yellow-400', glowColor: 'shadow-yellow-400/50' };
-      case 'AWAITING_APPROVAL': return { text: 'Awaiting Approval', color: 'text-purple-400', glowColor: 'shadow-purple-400/50' };
-      case 'EXECUTING': return { text: 'Executing...', color: 'text-primary', glowColor: 'shadow-primary/50' };
-      case 'FINALIZING': return { text: 'Finalizing...', color: 'text-secondary', glowColor: 'shadow-secondary/50' };
-      case 'FINISHED': return { text: 'Finished', color: 'text-success', glowColor: 'shadow-success/50' };
-      case 'ERROR': return { text: 'Error', color: 'text-error', glowColor: 'shadow-error/50' };
-      default: return { text: 'Standby', color: 'text-text-secondary', glowColor: 'shadow-gray-500/50' };
+      case 'PLANNING': return { text: 'PLANNING', color: 'text-primary', icon: <Loader /> };
+      case 'AWAITING_APPROVAL': return { text: 'AWAITING...', color: 'text-accent', icon: <SparklesIcon/> };
+      case 'EXECUTING': return { text: 'EXECUTING', color: 'text-primary', icon: <Loader /> };
+      case 'FINALIZING': return { text: 'FINALIZING', color: 'text-accent', icon: <Loader /> };
+      case 'FINISHED': return { text: 'COMPLETE', color: 'text-success', icon: <CheckCircleIcon /> };
+      case 'ERROR': return { text: 'FAILED', color: 'text-error', icon: <XIcon /> };
+      default: return { text: 'STANDBY', color: 'text-text-secondary', icon: <SparklesIcon/> };
     }
   };
 
@@ -53,30 +54,20 @@ const AgentStatus: React.FC<AgentStatusProps> = ({ state, startTime, error }) =>
 
   if (!statusInfo) return null;
 
-  const { text, color, glowColor } = statusInfo;
+  const { text, color, icon } = statusInfo;
   
-  const iconMap: { [key in AppState]?: React.ReactElement } = {
-      PLANNING: <SparklesIcon className="animate-pulse"/>,
-      AWAITING_APPROVAL: <SparklesIcon/>,
-      EXECUTING: <SparklesIcon className="animate-pulse"/>,
-      FINALIZING: <SparklesIcon className="animate-pulse"/>,
-      FINISHED: <CheckCircleIcon />,
-      ERROR: <XIcon />,
-  }
-  const icon = iconMap[state] || <SparklesIcon />;
-
   return (
-    <div className={`bg-surface border border-border rounded-full p-2 px-4 flex items-center justify-center gap-6 backdrop-blur-lg shadow-lg ${glowColor} transition-all duration-500`}>
-        <div className="flex items-center gap-2">
-            <div className={`h-5 w-5 ${color}`}>
+    <div className={`bg-surface/80 backdrop-blur-sm border border-border rounded-md px-3 sm:px-4 py-2 flex items-center justify-center gap-3 sm:gap-4 shadow-sm transition-all duration-500`}>
+        <div className="flex items-center gap-2 sm:gap-3">
+            <div className={`h-6 w-6 ${color}`}>
                 {React.cloneElement(icon, { className: 'h-full w-full' })}
             </div>
-            <p className={`font-mono text-md ${color}`}>{text}</p>
+            <p className={`font-sans text-sm sm:text-base font-semibold tracking-wider ${color}`}>{text}</p>
         </div>
         {startTime && (
-             <div className="flex items-center gap-2 text-text-secondary">
+             <div className="flex items-center gap-2 text-text-secondary border-l border-border/50 pl-3 sm:pl-4">
                 <TimerIcon className="h-5 w-5"/>
-                <span className="font-mono text-md">{elapsedTime}</span>
+                <span className="font-mono text-base sm:text-lg">{elapsedTime}</span>
              </div>
         )}
     </div>

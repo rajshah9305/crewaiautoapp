@@ -6,9 +6,10 @@ export interface Task {
   description: string;
   agent: string;
   status: TaskStatus;
+  error?: string;
 }
 
-export type LogEntryType = 'system' | 'thought' | 'action' | 'observation' | 'error';
+export type LogEntryType = 'system' | 'thought' | 'action' | 'observation' | 'error' | 'user';
 
 export interface LogEntry {
   id: string;

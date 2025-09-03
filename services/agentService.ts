@@ -1,22 +1,15 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { Task, LogEntry } from '../types';
 import { AGENT_ROLES } from '../constants';
 
-// This is a placeholder for a real API key, which should be handled securely
-const API_KEY = process.env.API_KEY;
-
-if (!API_KEY) {
-  console.warn("API_KEY environment variable not set. Using a placeholder. App will not function correctly.");
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY || "YOUR_API_KEY_HERE" });
+// The API key is injected from the environment and is assumed to be present.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const planTasks = async (goal: string): Promise<Task[]> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: `You are a master AI project planner for a team of specialized AI agents. Your available agents are: ${AGENT_ROLES.join(', ')}. Given the user's goal: "${goal}", break it down into a sequence of tasks. For each task, specify the most suitable agent to perform it. Return a JSON array of objects, where each object has "title", "description", and "agent" properties. The "agent" must be one of the available agent types. Ensure the response is only the JSON array.`,
+      contents: `You are a master AI project planner for a team of specialized AI agents. Your available agents are: ${AGENT_ROLES.join(', ')}. Given the user's goal: "${goal}", break it down into a comprehensive, logical sequence of tasks. For each task, specify the most suitable agent to perform it. The final task should typically involve synthesizing the results into a complete answer. Return a JSON array of objects, where each object has "title", "description", and "agent" properties. The "agent" must be one of the available agent types. Ensure the response is only the JSON array.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -34,7 +27,16 @@ export const planTasks = async (goal: string): Promise<Task[]> => {
       },
     });
 
-    const jsonString = response.text.trim();
+    const rawResponse = response.text.trim();
+    // Find the start of the JSON array and the end. This is more robust against the model adding leading/trailing text.
+    const startIndex = rawResponse.indexOf('[');
+    const endIndex = rawResponse.lastIndexOf(']');
+
+    if (startIndex === -1 || endIndex === -1) {
+        throw new Error("AI response did not contain a valid JSON array.");
+    }
+
+    const jsonString = rawResponse.substring(startIndex, endIndex + 1);
     const parsedTasks = JSON.parse(jsonString);
 
     return parsedTasks.map((task: any, index: number) => ({
@@ -69,9 +71,8 @@ export const executeTaskStream = async (
       ${historySummary}
 
       Now, execute your task. Stream your thought process, actions, and observations in markdown format. 
-      Your output must be structured and clear. For any action you take (e.g., searching, writing code), be explicit about it.
       
-      Follow this format strictly:
+      Your output MUST strictly follow this markdown format, with no exceptions:
       **Thinking:** Detail your step-by-step plan to tackle the task.
       **Action:** Describe the specific action you are about to perform. If you are using a tool, mention it (e.g., "Action: Searching the web for 'AI agent frameworks'"). For code, wrap it in markdown code blocks with the language identifier.
       **Observation:** State the result or outcome of your action.
@@ -92,8 +93,9 @@ export const executeTaskStream = async (
     onComplete();
   } catch (error) {
     console.error("Error executing task stream:", error);
-    onChunk(`\n**Error:** Failed to execute task for ${task.agent}. Please check the console for details.`, 'System');
-    onComplete();
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred during execution.";
+    onChunk(`\n**Error:** Failed to execute task for ${task.agent}. Reason: ${errorMessage}`, 'System');
+    throw error;
   }
 };
 

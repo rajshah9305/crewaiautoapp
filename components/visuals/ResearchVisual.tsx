@@ -1,61 +1,71 @@
 import React from 'react';
 import ResearchIcon from '../icons/ResearchIcon';
 
+const styles = `
+.planet-base {
+  fill: url(#planet-gradient);
+  filter: drop-shadow(0 0 15px var(--glow-color-secondary));
+}
+.ring {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-width: 0.75;
+  opacity: 0.7;
+  transform-origin: center;
+  filter: drop-shadow(0 0 5px var(--glow-color-primary));
+}
+.scanner-arc {
+  fill: var(--secondary-color);
+  opacity: 0.2;
+  transform-origin: center;
+  animation: sweep 4s ease-in-out infinite;
+}
+.data-blip {
+  fill: var(--success-color);
+  animation: blink 1.5s infinite;
+}
+@keyframes rotate {
+  from { transform: rotate3d(0, 1, 0, 0deg); }
+  to { transform: rotate3d(0, 1, 0, 360deg); }
+}
+@keyframes sweep {
+  0% { transform: rotate(0deg) scaleY(0); }
+  50% { transform: rotate(180deg) scaleY(1); }
+  100% { transform: rotate(360deg) scaleY(0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+`
+
 const ResearchVisual: React.FC = () => {
-    const nodes = Array.from({ length: 10 }, (_, i) => ({
-        id: i,
-        cx: `${10 + Math.random() * 80}%`,
-        cy: `${10 + Math.random() * 80}%`,
-        r: `${Math.random() * 4 + 2}`,
-        delay: `${Math.random() * 2}s`,
-    }));
-
-    const lines = nodes.slice(1).map((node, i) => ({
-        id: `l-${i}`,
-        x1: nodes[i].cx,
-        y1: nodes[i].cy,
-        x2: node.cx,
-        y2: node.cy,
-        delay: `${Math.random() * 2}s`,
-    }));
-
     return (
-        <div className="p-3">
-            <div className="flex items-center gap-2 text-text-secondary mb-2">
-                <ResearchIcon className="w-5 h-5 text-secondary" />
-                <span>Analyzing Information...</span>
+        <div className="p-3 font-mono">
+            <style>{styles}</style>
+            <div className="flex items-center gap-2 text-text-secondary mb-2 text-xs">
+                <ResearchIcon className="w-4 h-4 text-secondary" style={{ filter: `drop-shadow(0 0 3px currentColor)` }} />
+                <span>SCANNING SECTOR...</span>
             </div>
-            <div className="relative w-full h-32">
-                <svg width="100%" height="100%" className="overflow-visible">
+            <div className="w-full h-24 flex items-center justify-center bg-black/30 overflow-hidden border border-border/50 rounded-md">
+                <svg viewBox="-50 -50 100 100">
                     <defs>
-                        <style>
-                            {`
-                                .node { animation: nodePulse 2s ease-in-out infinite alternate; }
-                                .line { stroke-dasharray: 200; stroke-dashoffset: 200; animation: drawLine 3s ease-out forwards; }
-                                @keyframes nodePulse { 0% { r: 2; opacity: 0.5; } 100% { r: 5; opacity: 1; } }
-                                @keyframes drawLine { to { stroke-dashoffset: 0; } }
-                            `}
-                        </style>
+                        <radialGradient id="planet-gradient" cx="25%" cy="25%">
+                            <stop offset="0%" stopColor="var(--secondary-color)" />
+                            <stop offset="100%" stopColor="var(--surface-color)" />
+                        </radialGradient>
                     </defs>
-                    {lines.map(l => (
-                         <line
-                            key={l.id} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-                            stroke="rgba(0, 245, 212, 0.3)"
-                            strokeWidth="1"
-                            className="line"
-                            style={{ animationDelay: l.delay }}
-                        />
-                    ))}
-                    {nodes.map(n => (
-                        <circle
-                            key={n.id} cx={n.cx} cy={n.cy} r={n.r}
-                            fill="rgba(240, 33, 181, 0.8)"
-                            stroke="rgba(240, 33, 181, 1)"
-                            strokeWidth="1"
-                            className="node"
-                            style={{ animationDelay: n.delay }}
-                        />
-                    ))}
+                    <g style={{ animation: 'rotate 20s linear infinite' }}>
+                      <circle className="planet-base" cx="0" cy="0" r="30" />
+                      {/* Rings */}
+                      <ellipse className="ring" cx="0" cy="0" rx="40" ry="15" transform="rotate(20)" />
+                      <ellipse className="ring" cx="0" cy="0" rx="35" ry="10" transform="rotate(-30)"/>
+                      {/* Data Points */}
+                      <circle className="data-blip" cx="-10" cy="-15" r="1.5" style={{ animationDelay: '0.5s' }}/>
+                      <circle className="data-blip" cx="20" cy="10" r="1" style={{ animationDelay: '1s' }}/>
+                      <circle className="data-blip" cx="5" cy="22" r="1.2" style={{ animationDelay: '1.5s' }}/>
+                    </g>
+                     <path className="scanner-arc" d="M 0 0 L 45 0 A 45 45 0 0 1 31.82 31.82 z" />
                 </svg>
             </div>
         </div>
