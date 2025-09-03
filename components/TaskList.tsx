@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+
+
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { AppState, Task, TaskStatus } from '../types';
 import { AGENT_ROLES } from '../constants';
 import { AGENT_AVATARS } from './agent-config';
@@ -40,7 +42,7 @@ const TaskStatusIcon: React.FC<{ status: TaskStatus }> = ({ status }) => {
     case 'completed':
       return <CheckCircleIcon className="h-5 w-5 text-success" />;
     case 'in-progress':
-      return <SparklesIcon className="h-5 w-5 text-accent animate-pulse" />;
+      return <SparklesIcon className="h-5 w-5 text-primary animate-pulse" />;
     case 'pending':
       return <DotIcon className="h-5 w-5 text-text-secondary opacity-50" />;
     case 'error':
@@ -101,11 +103,21 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editedTask, setEditedTask] = useState<Partial<Task>>({});
   const [isApproving, setIsApproving] = useState(false);
+  const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const progress = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
   
   const isPlanEditable = appState === 'AWAITING_APPROVAL';
+
+  useEffect(() => {
+    // Auto-resize the textarea when editing
+    if (editingTaskId && descriptionTextareaRef.current) {
+        const textarea = descriptionTextareaRef.current;
+        textarea.style.height = 'auto'; // Reset height to recalculate
+        textarea.style.height = `${textarea.scrollHeight}px`; // Set to content height
+    }
+  }, [editingTaskId, editedTask.description]);
 
   const agents = useMemo(() => {
     const agentMap: { [key: string]: AgentWithTasks } = {};
@@ -143,6 +155,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
       setIsApproving(true);
   };
 
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditedTask({ ...editedTask, description: e.target.value });
+    // The useEffect will handle the resize
+  };
+
   return (
     <div className="bg-surface/80 backdrop-blur-sm border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
@@ -160,7 +177,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                 const isAnyTaskActive = agent.tasks.some(t => t.status === 'in-progress');
                 
                 const getAgentStatus = (agent: AgentWithTasks): { text: string; color: string; dot: string } => {
-                    if (agent.tasks.some(t => t.status === 'in-progress')) return { text: 'ACTIVE', color: 'text-accent', dot: 'bg-accent' };
+                    if (agent.tasks.some(t => t.status === 'in-progress')) return { text: 'ACTIVE', color: 'text-primary', dot: 'bg-primary' };
                     if (agent.tasks.some(t => t.status === 'error')) return { text: 'ERROR', color: 'text-error', dot: 'bg-error' };
                     if (agent.tasks.length > 0 && agent.tasks.every(t => t.status === 'completed')) return { text: 'NOMINAL', color: 'text-success', dot: 'bg-success' };
                     if (agent.tasks.length > 0 && agent.tasks.every(t => t.status === 'blocked')) return { text: 'BLOCKED', color: 'text-text-secondary', dot: 'bg-text-secondary' };
@@ -169,7 +186,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                 const agentStatus = getAgentStatus(agent);
 
                 return (
-                    <li key={agent.name} className={`bg-background/50 border border-border rounded-lg transition-all duration-300 ${isAnyTaskActive ? 'border-accent shadow-glow' : ''} ${agent.tasks.some(t => t.status === 'error') ? '!border-error' : ''}`}>
+                    <li key={agent.name} className={`bg-background/50 border border-border rounded-lg transition-all duration-300 ${isAnyTaskActive ? 'border-primary shadow-glow' : ''} ${agent.tasks.some(t => t.status === 'error') ? '!border-error' : ''}`}>
                         <div className="flex items-center justify-between p-3 bg-gradient-to-b from-surface/80 to-surface/50 rounded-t-lg border-b border-border">
                             <div className="flex items-center gap-3 min-w-0">
                                <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center border border-border flex-shrink-0"><agent.icon className="h-5 w-5 text-secondary" /></div>
@@ -185,27 +202,33 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                                 const isEditing = editingTaskId === task.id;
                                 if (isEditing) {
                                     return (
-                                        <li key={task.id} className="flex flex-col gap-2 p-3 bg-surface ring-2 ring-accent rounded-md">
+                                        <li key={task.id} className="flex flex-col gap-2 p-3 bg-surface ring-2 ring-primary rounded-md">
                                             <input 
                                                 type="text" 
                                                 value={editedTask.title} 
                                                 onChange={e => setEditedTask({...editedTask, title: e.target.value})} 
-                                                className="bg-background border border-border rounded-md px-2 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                                                className="bg-background border border-border rounded-md px-2 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                                                 placeholder="Task Title"
                                             />
                                             <textarea 
+                                                ref={descriptionTextareaRef}
                                                 value={editedTask.description} 
-                                                onChange={e => setEditedTask({...editedTask, description: e.target.value})} 
-                                                className="bg-background border border-border rounded-md px-2 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent text-sm resize-y"
-                                                rows={3}
+                                                onChange={handleDescriptionChange} 
+                                                className="bg-background border border-border rounded-md px-2 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-primary text-sm resize-none overflow-hidden"
+                                                rows={1}
                                                 placeholder="Task Description..."
                                             />
-                                            <select value={editedTask.agent} onChange={e => setEditedTask({...editedTask, agent: e.target.value})} className="bg-background border border-border rounded-md px-2 py-1.5 w-full text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                                            <select 
+                                                value={editedTask.agent} 
+                                                onChange={e => setEditedTask({...editedTask, agent: e.target.value})} 
+                                                className="bg-background border border-border rounded-md px-2 py-1.5 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                                title="Assign the most suitable agent for this task's role."
+                                            >
                                                 {AGENT_ROLES.map(role => <option key={role} value={role}>{role}</option>)}
                                             </select>
                                             <div className="flex items-center justify-end gap-1 mt-1">
                                                 <button aria-label="Cancel Edit" onClick={handleCancel} className="p-1.5 rounded-md hover:bg-border transition-colors"><XIcon className="h-5 w-5 text-text-secondary"/></button>
-                                                <button aria-label="Save Task" onClick={handleSave} className="p-1.5 rounded-md hover:bg-border transition-colors"><SaveIcon className="h-5 w-5 text-accent"/></button>
+                                                <button aria-label="Save Task" onClick={handleSave} className="p-1.5 rounded-md hover:bg-border transition-colors"><SaveIcon className="h-5 w-5 text-primary"/></button>
                                             </div>
                                         </li>
                                     )
@@ -213,7 +236,10 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                                 return (
                                     <li key={task.id} className="group/task flex flex-col text-sm p-2 rounded-md hover:bg-surface/50">
                                         <div className="flex items-start gap-3 w-full">
-                                            <div className="mt-0.5 flex-shrink-0"><TaskStatusIcon status={task.status} /></div>
+                                            <div className="mt-0.5 flex-shrink-0 flex items-center gap-2" title={agent.name}>
+                                                <TaskStatusIcon status={task.status} />
+                                                <agent.icon className="h-4 w-4 text-text-secondary opacity-70" />
+                                            </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-text-primary font-medium">{task.title}</p>
                                                 <p className="text-text-secondary text-xs">{task.description}</p>
@@ -226,7 +252,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
                                                     <button aria-label="Delete Task" onClick={() => onDeleteTask(task.id)} className="p-1 rounded-md hover:bg-border"><DeleteIcon className="h-4 w-4 text-error"/></button>
                                                 )}
                                                 {task.status === 'error' && (
-                                                     <button aria-label="Retry Task" onClick={() => onRetryTask(task.id)} className="p-1 rounded-md hover:bg-border"><RestartIcon className="h-4 w-4 text-accent"/></button>
+                                                     <button aria-label="Retry Task" onClick={() => onRetryTask(task.id)} className="p-1 rounded-md hover:bg-border"><RestartIcon className="h-4 w-4 text-primary"/></button>
                                                 )}
                                             </div>
                                         </div>
@@ -253,16 +279,16 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, appState, onApprove, onUpdat
       {isPlanEditable && !isApproving && (
           <div className="mt-auto pt-4 border-t border-border flex flex-col gap-3">
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={onAddTask} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-gray-400/50 transition-colors group active:scale-95">
+                <button onClick={onAddTask} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-text-secondary/50 transition-colors group active:scale-95">
                     <AddIcon className="h-5 w-5" />
                     <span>Add Task</span>
                 </button>
-                 <button onClick={onSavePlan} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-gray-400/50 transition-colors group active:scale-95">
+                 <button onClick={onSavePlan} className="w-full bg-surface border border-border font-semibold py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:border-text-secondary/50 transition-colors group active:scale-95">
                     <SaveIcon className="h-5 w-5" />
                     <span>Save Plan</span>
                 </button>
               </div>
-              <button onClick={handleApprove} className="w-full flex items-center justify-center gap-2 bg-cta text-black font-bold text-base py-3 px-4 rounded-lg transition-all duration-200 hover:bg-amber-500 active:scale-95 shadow-md hover:shadow-lg hover:shadow-primary/40">
+              <button onClick={handleApprove} className="w-full flex items-center justify-center gap-2 bg-cta text-white font-bold text-base py-3 px-4 rounded-lg transition-all duration-200 hover:brightness-110 active:scale-95 shadow-md hover:shadow-lg hover:shadow-glow-cta">
                   <PaperAirplaneIcon className="h-5 w-5" />
                   <span>Confirm & Launch</span>
               </button>

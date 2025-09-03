@@ -14,6 +14,8 @@ import ActivityMonitor from './components/ActivityMonitor';
 import FinalReport from './components/FinalReport';
 import MissionStarmap from './components/MissionStarmap';
 import StellarCartographyIcon from './components/icons/StellarCartographyIcon';
+import BrushIcon from './components/icons/BrushIcon';
+import ImageGenerator from './components/ImageGenerator';
 
 
 const App: React.FC = () => {
@@ -28,6 +30,7 @@ const App: React.FC = () => {
   const [hasSavedPlan, setHasSavedPlan] = useState<boolean>(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
+  const [currentView, setCurrentView] = useState<'mission' | 'design'>('mission');
 
   const logEntriesRef = useRef(logEntries);
   useEffect(() => {
@@ -112,6 +115,7 @@ const App: React.FC = () => {
     setErrorMessage(null);
     setStartTime(null);
     setChatInput('');
+    setCurrentView('mission');
     if (window.innerWidth >= 1024) {
         setIsSidebarOpen(true);
         setIsStarmapOpen(true);
@@ -153,6 +157,7 @@ const App: React.FC = () => {
     setAppState('PLANNING');
     setErrorMessage(null);
     setStartTime(null);
+    setCurrentView('mission');
     
     addLogEntry('User', missionGoal, 'user');
     addLogEntry('System', 'Objective received. Planning mission...', 'system');
@@ -240,6 +245,7 @@ const App: React.FC = () => {
             setChatInput(savedGoal);
             setTasks(savedTasks);
             setAppState('AWAITING_APPROVAL');
+            setCurrentView('mission');
             addLogEntry('System', 'Saved mission plan loaded. Review and launch.', 'system');
             setIsSidebarOpen(true);
         } else {
@@ -322,7 +328,7 @@ const App: React.FC = () => {
     finalize();
   }, [appState, goal, logEntries, addLogEntry]);
 
-  const showPanels = appState !== 'IDLE';
+  const showPanels = appState !== 'IDLE' && currentView === 'mission';
 
   const renderCenterPanel = () => {
     const finalReportEntry = logEntries.find(e => e.type === 'final_report');
@@ -388,6 +394,14 @@ const App: React.FC = () => {
                         <StellarCartographyIcon className="h-6 w-6 text-text-secondary"/>
                     </button>
                 )}
+                 <button
+                    onClick={() => setCurrentView(v => v === 'mission' ? 'design' : 'mission')}
+                    className={`group bg-surface border border-border px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 hover:border-primary/50 transition-all text-text-primary font-medium active:scale-95 shadow-sm ${currentView === 'design' ? 'border-primary/50 bg-primary-light' : ''}`}
+                    title="Toggle Design Bay"
+                >
+                    <BrushIcon className="h-5 w-5" />
+                    <span className="hidden sm:inline">Design Bay</span>
+                </button>
                 <button onClick={resetState} className="group bg-surface border border-border px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 hover:border-primary/50 transition-all text-text-primary font-medium active:scale-95 shadow-sm">
                     <RestartIcon className="h-5 w-5"/>
                     <span className="hidden sm:inline">New Mission</span>
@@ -396,34 +410,42 @@ const App: React.FC = () => {
           </header>
 
           <main className="flex-1 min-h-0 flex gap-4 transition-all duration-300">
-              {/* Left Panel: Crew Manifest */}
-              <aside className={`transition-all duration-300 ease-in-out ${isSidebarOpen && showPanels ? 'w-80 md:w-96' : 'w-0'} ${!showPanels ? 'hidden' : 'flex'}`}>
-                <div className={`w-80 md:w-96 h-full transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
-                    {isSidebarOpen && <TaskList 
-                        tasks={tasks} 
-                        appState={appState} 
-                        onApprove={handleApproveAndRun} 
-                        onReset={resetState}
-                        onUpdateTask={handleUpdateTask}
-                        onDeleteTask={handleDeleteTask}
-                        onAddTask={handleAddTask}
-                        onRetryTask={handleRetryTask}
-                        onSavePlan={savePlan}
-                    />}
-                </div>
-              </aside>
+            {currentView === 'mission' ? (
+              <>
+                {/* Left Panel: Crew Manifest */}
+                <aside className={`transition-all duration-300 ease-in-out ${isSidebarOpen && showPanels ? 'w-80 md:w-96' : 'w-0'} ${!showPanels ? 'hidden' : 'flex'}`}>
+                  <div className={`w-80 md:w-96 h-full transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
+                      {isSidebarOpen && <TaskList 
+                          tasks={tasks} 
+                          appState={appState} 
+                          onApprove={handleApproveAndRun} 
+                          onReset={resetState}
+                          onUpdateTask={handleUpdateTask}
+                          onDeleteTask={handleDeleteTask}
+                          onAddTask={handleAddTask}
+                          onRetryTask={handleRetryTask}
+                          onSavePlan={savePlan}
+                      />}
+                  </div>
+                </aside>
 
-              {/* Center Panel: Operations */}
-              <div className="flex-1 flex justify-center min-w-0 h-full">
-                  {renderCenterPanel()}
-              </div>
-
-              {/* Right Panel: Mission Starmap */}
-              <aside className={`transition-all duration-300 ease-in-out hidden lg:flex ${isStarmapOpen && showPanels ? 'w-80 md:w-96' : 'w-0'}`}>
-                <div className={`w-80 md:w-96 h-full transition-opacity duration-300 ${isStarmapOpen ? 'opacity-100' : 'opacity-0'}`}>
-                    {isStarmapOpen && <MissionStarmap tasks={tasks} />}
+                {/* Center Panel: Operations */}
+                <div className="flex-1 flex justify-center min-w-0 h-full">
+                    {renderCenterPanel()}
                 </div>
-              </aside>
+
+                {/* Right Panel: Mission Starmap */}
+                <aside className={`transition-all duration-300 ease-in-out hidden lg:flex ${isStarmapOpen && showPanels ? 'w-80 md:w-96' : 'w-0'}`}>
+                  <div className={`w-80 md:w-96 h-full transition-opacity duration-300 ${isStarmapOpen ? 'opacity-100' : 'opacity-0'}`}>
+                      {isStarmapOpen && <MissionStarmap tasks={tasks} />}
+                  </div>
+                </aside>
+              </>
+            ) : (
+                <div className="flex-1 flex justify-center min-w-0 h-full">
+                    <ImageGenerator />
+                </div>
+            )}
           </main>
       </div>
     </>

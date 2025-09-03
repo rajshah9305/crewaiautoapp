@@ -68,14 +68,14 @@ const MissionBriefing: React.FC<MissionBriefingProps> = ({
                         onChange={(e) => onInputChange(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={isIdle ? "Example: 'Create a marketing campaign for a new space-themed video game...'" : "Mission in progress..."}
-                        className="w-full bg-surface border-2 border-border rounded-xl p-4 pr-20 resize-none focus:outline-none focus:ring-0 focus:border-border placeholder-text-secondary/80 text-base transition-all duration-200 shadow-md group-focus-within:border-primary/50 group-focus-within:shadow-lg group-focus-within:shadow-primary/20"
+                        className="w-full bg-surface border-2 border-border rounded-xl p-4 pr-20 resize-none focus:outline-none focus:ring-0 focus:border-primary placeholder-text-secondary/80 text-base transition-all duration-200 shadow-md group-focus-within:border-primary group-focus-within:shadow-lg group-focus-within:shadow-glow"
                         rows={3}
                         disabled={!isIdle || isLoading}
                     />
                     <button 
                         onClick={handleSend}
                         disabled={!isIdle || isLoading || !inputValue.trim()}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-3 rounded-lg bg-cta text-black disabled:opacity-50 disabled:cursor-not-allowed hover:bg-amber-500 transition-all active:scale-90 shadow-lg disabled:shadow-none hover:shadow-primary/40"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-3 rounded-lg bg-cta text-white disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition-all active:scale-90 shadow-lg disabled:shadow-none hover:shadow-glow-cta"
                         aria-label="Deploy Crew"
                     >
                         <PaperAirplaneIcon className="h-6 w-6" />

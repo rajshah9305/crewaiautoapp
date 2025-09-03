@@ -7,39 +7,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       :root {
-        /* Elite & Feature-Rich Color Palette - "Command Center" Dark Theme v2 */
-        --bg-color: #0D1117;
-        --surface-color: #161B22;
-        --border-color: #30363D;
-        --primary-color: #F7B224; /* Richer Amber */
-        --primary-light-color: rgba(247, 178, 36, 0.1);
-        --cta-color: #F7B224;
-        --text-primary-color: #C9D1D9;
-        --text-secondary-color: #8B949E;
-        --success-color: #238636;
-        --error-color: #DA3633;
-        
+        /* Aether-Wave Color Palette */
+        --bg-color: #0a0c10;
+        --surface-color: #12161d;
+        --border-color: #2a303c;
+        --primary-color: #00f2ea; /* Electric Teal */
+        --primary-light-color: rgba(0, 242, 234, 0.1);
+        --primary-glow: rgba(0, 242, 234, 0.3);
+        --cta-color: #ff00a0; /* Vibrant Magenta */
+        --cta-glow: rgba(255, 0, 160, 0.3);
+        --text-primary-color: #e6f1ff;
+        --text-secondary-color: #8c96a5;
+        --success-color: #33ff8c;
+        --error-color: #ff4d4d;
+
         /* Resource Meter Colors */
-        --cpu-color: #38BDF8; /* Sky 400 */
-        --cognition-color: #A78BFA; /* Violet 400 */
-        --network-color: #4ADE80; /* Green 400 */
+        --cpu-color: #38BDF8;
+        --cognition-color: var(--cta-color);
+        --network-color: #4ADE80;
 
         --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.2);
         --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.25);
         --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
         --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.35), 0 4px 6px -4px rgb(0 0 0 / 0.35);
       }
+      
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAI2SURBVHjaYvz//z8DJQAggJiQOe/0g0s//PrP8M+Pj28m/P//fwYgA4gB3f//Z/j58+f/j4+PJgAEEBOkP3/+DP/+/fv/379//7+goOD/69ev/5+cnPz/9+/f/5+amvr/8+fP/w9/fPz/++fPnwMggJhA9e/ff9n/////+Pj4/+vr6/+fnZ39/+fPnwMggJgg+fn5/2/fvv3/8+fP/19eXv7/9+/f/09OTv7/8+fP/4+Pj/8///79+/+Tk5P/n56e/v/z589fYC0QAAHEBCj//v37/+Xl5f+fnZ39//fv3/9PTEz8//nz5//fv3//f3Jyor+cnJx/T01N/f/58+ffw4cP/19bW/v/69ev/5+fn/9/BQUF/79//y5ANAEggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJggOTn5/+fPnwMggJgAFUAmUCvfv0CAQACDAAwe740g8Z1+AAAAABJRU5ErkJggg==');
+        opacity: 0.05;
+        z-index: -1;
+        pointer-events: none;
+      }
 
       body {
         background-color: var(--bg-color);
         color: var(--text-primary-color);
-        overflow: hidden; /* Prevent body scroll, panels will scroll instead */
+        overflow: hidden;
         background-image:
-          radial-gradient(ellipse 80% 80% at 50% 120%, rgba(247, 178, 36, 0.1), transparent),
-          radial-gradient(ellipse at center, rgba(22, 27, 34, 0.5) 0%, var(--bg-color) 70%),
-          linear-gradient(rgba(48, 54, 61, 0.3) 1px, transparent 1px),
-          linear-gradient(to right, rgba(48, 54, 61, 0.3) 1px, transparent 1px);
-        background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+          radial-gradient(ellipse at center, rgba(18, 22, 29, 0.5) 0%, var(--bg-color) 70%),
+          radial-gradient(ellipse 80% 80% at 50% 120%, rgba(0, 242, 234, 0.08), transparent);
       }
 
       /* Custom Selections */
@@ -59,7 +71,7 @@
       ::-webkit-scrollbar-thumb {
         background: #484f58;
         border-radius: 4px;
-        border: 2px solid var(--bg-color);
+        border: 2px solid var(--surface-color);
       }
       ::-webkit-scrollbar-thumb:hover {
         background: var(--primary-color);
@@ -67,6 +79,15 @@
       
       .node-in-progress {
           animation: pulse-node-glow 1.5s infinite ease-in-out;
+      }
+
+      .edge-flow {
+        stroke-dasharray: 6, 4;
+        animation: edge-flow 1s linear infinite;
+      }
+      @keyframes edge-flow {
+        from { stroke-dashoffset: 0; }
+        to { stroke-dashoffset: -10; }
       }
 
     </style>
@@ -82,7 +103,7 @@
               'primary-light': 'var(--primary-light-color)',
               'cta': 'var(--cta-color)',
               'secondary': 'var(--text-secondary-color)',
-              'accent': 'var(--primary-color)', /* Using primary as accent */
+              'accent': 'var(--cta-color)', /* Using CTA as accent */
               'text-primary': 'var(--text-primary-color)',
               'text-secondary': 'var(--text-secondary-color)',
               'success': 'var(--success-color)',
@@ -124,11 +145,11 @@
               'pulse-node-glow': {
                   '0%, 100%': {
                       transform: 'scale(1)',
-                      filter: 'drop-shadow(0 0 2px var(--primary-color))'
+                      filter: 'drop-shadow(0 0 3px var(--primary-color))'
                   },
                   '50%': {
-                      transform: 'scale(1.05)',
-                      filter: 'drop-shadow(0 0 6px var(--primary-color))'
+                      transform: 'scale(1.02)',
+                      filter: 'drop-shadow(0 0 8px var(--primary-color))'
                   }
               },
               'shimmer': {
@@ -136,8 +157,8 @@
                   '100%': { background-position: '200% 0' },
               },
               'focus-glow': {
-                '0%, 100%': { 'box-shadow': '0 0 8px 2px rgba(247, 178, 36, 0.2)' },
-                '50%': { 'box-shadow': '0 0 12px 4px rgba(247, 178, 36, 0.4)' },
+                '0%, 100%': { 'box-shadow': '0 0 8px 2px var(--primary-glow)' },
+                '50%': { 'box-shadow': '0 0 12px 4px var(--primary-light-color)' },
               }
             },
             animation: {
@@ -155,8 +176,9 @@
                 'sm': 'var(--shadow-sm)',
                 'md': 'var(--shadow-md)',
                 'lg': 'var(--shadow-lg)',
-                'glow': '0 0 15px -3px rgb(247 178 36 / 0.3)',
-                'inner-glow': 'inset 0 0 10px 0 rgb(247 178 36 / 0.2)',
+                'glow': '0 0 15px -3px var(--primary-glow)',
+                'glow-cta': '0 0 15px -3px var(--cta-glow)',
+                'inner-glow': 'inset 0 0 10px 0 var(--primary-glow)',
             }
           }
         }
