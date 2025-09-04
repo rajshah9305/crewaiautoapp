@@ -352,10 +352,10 @@ const App: React.FC = () => {
   // New effect to handle the pause between tasks.
   useEffect(() => {
     if (appState === 'PAUSING_BETWEEN_TASKS') {
-        addLogEntry('System', 'Pausing for 2s to respect API rate limits.', 'system');
+        addLogEntry('System', 'Pausing for 5s to respect API rate limits.', 'system');
         const timer = setTimeout(() => {
             setAppState('EXECUTING');
-        }, 2000); // 2-second pause
+        }, 5000); // 5-second pause
         return () => clearTimeout(timer);
     }
   }, [appState, addLogEntry]);
