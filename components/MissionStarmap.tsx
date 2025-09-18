@@ -102,85 +102,76 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
     return { nodePositions: Array.from(nodePositions.values()), edges, width, height, NODE_WIDTH, NODE_HEIGHT };
   }, [tasks]);
 
-  if (!tasks || tasks.length === 0) {
-    return (
-        <div className="bg-surface/80 backdrop-blur-sm border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
-            <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary mb-4 pb-3 border-b border-border">
-                <StellarCartographyIcon className="h-6 w-6 text-secondary"/> Mission Starmap
-            </h2>
-            <div className="flex-1 flex items-center justify-center text-center text-sm text-text-secondary">
-                Awaiting mission plan...
-            </div>
-        </div>
-    );
-  }
-
   return (
     <div className="bg-surface/80 backdrop-blur-sm border border-border p-4 w-full h-full flex flex-col transition-all duration-300 shadow-lg rounded-lg animate-fadeInUp">
-        <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary mb-4 pb-3 border-b border-border">
-            <StellarCartographyIcon className="h-6 w-6 text-secondary"/> Mission Starmap
-        </h2>
-        <div className="w-full h-full overflow-auto p-2 bg-background rounded-md border border-border">
-            {graphData && (
-                <svg width={graphData.width} height={graphData.height} className="min-w-full min-h-full">
-                    <defs>
-                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#484f58" />
-                        </marker>
-                         <marker id="arrowhead-completed" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--success-color)" />
-                        </marker>
-                    </defs>
-                    <g>
-                    {graphData.edges.map(edge => (
-                        <path
-                            key={edge.id}
-                            d={edge.path}
-                            fill="none"
-                            stroke={edge.status === 'completed' ? 'var(--success-color)' : '#484f58'}
-                            strokeWidth={edge.status === 'completed' ? 2 : 1.5}
-                            markerEnd={edge.status === 'completed' ? 'url(#arrowhead-completed)' : 'url(#arrowhead)'}
-                            className={`transition-all duration-500 ${edge.status === 'completed' ? 'edge-flow' : ''}`}
-                        />
-                    ))}
-                    </g>
-                    <g>
-                    {graphData.nodePositions.map(({ x, y, node, index }) => {
-                        const style = statusStyles[node.status] || statusStyles.pending;
-                        const isPulsing = node.status === 'in-progress';
-                        const AgentIcon = AGENT_AVATARS[node.agent] || DotIcon;
-                        return (
-                            <g key={node.id} transform={`translate(${x - graphData.NODE_WIDTH / 2}, ${y - graphData.NODE_HEIGHT / 2})`} className={`cursor-pointer group ${isPulsing ? 'node-in-progress' : ''}`}>
-                                <title>{`[Task ${index}] ${node.title}\n\nStatus: ${node.status.toUpperCase()}\nAgent: ${node.agent}\n\nDescription:\n${node.description}\n\nDependencies: ${node.dependencies.join(', ') || 'None'}`}</title>
-                                <rect
-                                    width={graphData.NODE_WIDTH}
-                                    height={graphData.NODE_HEIGHT}
-                                    rx="8"
-                                    fill={style.fill}
-                                    stroke={style.stroke}
-                                    strokeWidth="2"
-                                    className="transition-all duration-300 group-hover:stroke-[3px]"
-                                />
-                                <foreignObject x="8" y="8" width="24" height="24">
-                                    <div className="w-full h-full flex items-center justify-center bg-surface rounded-md border border-border/50">
-                                        <AgentIcon className={`h-4 w-4 ${style.text}`} />
-                                    </div>
-                                </foreignObject>
-
-                                <text x="40" y="19" fill="var(--text-primary-color)" fontSize="12" fontWeight="500" className="pointer-events-none select-none font-sans">
-                                    {truncate(node.title, 16)}
-                                </text>
-
-                                <text x="40" y="39" fill={style.stroke} fontSize="11" className="pointer-events-none select-none font-mono uppercase">
-                                    {`T${index} - ${node.status}`}
-                                </text>
-                            </g>
-                        );
-                    })}
-                    </g>
-                </svg>
-            )}
-        </div>
+      <h2 className="text-xl font-semibold flex items-center gap-3 text-text-primary mb-4 pb-3 border-b border-border">
+          <StellarCartographyIcon className="h-6 w-6 text-secondary"/> Mission Starmap
+      </h2>
+      <div className="flex-1 min-h-0 w-full overflow-auto grid place-items-center bg-background rounded-md border border-border">
+        {graphData ? (
+          <div className="p-2">
+            <svg width={graphData.width} height={graphData.height}>
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#484f58" />
+                </marker>
+                <marker id="arrowhead-completed" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="var(--success-color)" />
+                </marker>
+              </defs>
+              <g>
+              {graphData.edges.map(edge => (
+                <path
+                  key={edge.id}
+                  d={edge.path}
+                  fill="none"
+                  stroke={edge.status === 'completed' ? 'var(--success-color)' : '#484f58'}
+                  strokeWidth={edge.status === 'completed' ? 2 : 1.5}
+                  markerEnd={edge.status === 'completed' ? 'url(#arrowhead-completed)' : 'url(#arrowhead)'}
+                  className={`transition-all duration-500 ${edge.status === 'completed' ? 'edge-flow' : ''}`}
+                />
+              ))}
+              </g>
+              <g>
+              {graphData.nodePositions.map(({ x, y, node, index }) => {
+                const style = statusStyles[node.status] || statusStyles.pending;
+                const isPulsing = node.status === 'in-progress';
+                const AgentIcon = AGENT_AVATARS[node.agent] || DotIcon;
+                return (
+                  <g key={node.id} transform={`translate(${x - graphData.NODE_WIDTH / 2}, ${y - graphData.NODE_HEIGHT / 2})`} className={`cursor-pointer group ${isPulsing ? 'node-in-progress' : ''}`}>
+                    <title>{`[Task ${index}] ${node.title}\n\nStatus: ${node.status.toUpperCase()}\nAgent: ${node.agent}\n\nDescription:\n${node.description}\n\nDependencies: ${node.dependencies.join(', ') || 'None'}`}</title>
+                    <rect
+                      width={graphData.NODE_WIDTH}
+                      height={graphData.NODE_HEIGHT}
+                      rx="8"
+                      fill={style.fill}
+                      stroke={style.stroke}
+                      strokeWidth="2"
+                      className="transition-all duration-300 group-hover:stroke-[3px]"
+                    />
+                    <foreignObject x="8" y="8" width="24" height="24">
+                      <div className="w-full h-full flex items-center justify-center bg-surface rounded-md border border-border/50">
+                        <AgentIcon className={`h-4 w-4 ${style.text}`} />
+                      </div>
+                    </foreignObject>
+                    <text x="40" y="19" fill="var(--text-primary-color)" fontSize="12" fontWeight="500" className="pointer-events-none select-none font-sans">
+                      {truncate(node.title, 16)}
+                    </text>
+                    <text x="40" y="39" fill={style.stroke} fontSize="11" className="pointer-events-none select-none font-mono uppercase">
+                      {`T${index} - ${node.status}`}
+                    </text>
+                  </g>
+                );
+              })}
+              </g>
+            </svg>
+          </div>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-center text-sm text-text-secondary">
+            Awaiting mission plan...
+          </div>
+        )}
+      </div>
     </div>
   );
 };
