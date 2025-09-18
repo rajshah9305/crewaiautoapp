@@ -9,11 +9,11 @@ import UserIcon from './icons/UserIcon';
 
 // A mapping from agent role names to their corresponding icon components.
 export const AGENT_AVATARS: { [key:string]: React.FC<{ className?: string }> } = {
-  "Research Agent": ResearchIcon,
-  "Content Strategist": ContentIcon,
-  "Technical Writer": WriteIcon,
-  "Code Generator": CodeIcon,
-  "Reviewer Agent": ReviewIcon,
+  "Data Archaeologist": ResearchIcon,
+  "Narrative Architect": ContentIcon,
+  "Protocol Scribe": WriteIcon,
+  "Synth-Code Engineer": CodeIcon,
+  "Chief Verifier": ReviewIcon,
   "System": CogIcon,
   "User": UserIcon,
 };

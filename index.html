@@ -63,7 +63,11 @@
                   '4%': { opacity: '1' },
                   '15%': { opacity: '0.95' },
                   '100%': { opacity: '1' },
-              }
+              },
+              pulseText: {
+                '0%, 100%': { opacity: '0.8' },
+                '50%': { opacity: '1' },
+              },
             },
             animation: {
               fadeInUp: 'fadeInUp 0.5s ease-in-out forwards',
@@ -71,6 +75,7 @@
               blink: 'blink 1s step-end infinite',
               'focus-glow': 'focus-glow 0.4s ease-out',
               'crt-flicker': 'crt-flicker 3s linear infinite',
+              'pulse-text': 'pulseText 2s ease-in-out infinite',
             },
             boxShadow: {
               glow: '0 0 15px 0px var(--primary-glow)',

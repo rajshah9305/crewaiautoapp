@@ -10,24 +10,24 @@ import LiveMarkdownRenderer from './LiveMarkdownRenderer';
 
 // A map to get the correct visual component for an agent.
 const AGENT_VISUALS: { [key: string]: React.FC<any> } = {
-  'Research Agent': ResearchVisual,
-  'Content Strategist': (props) => <WritingVisual {...props} title="Strategy Formulation..." />,
-  'Technical Writer': (props) => <WritingVisual {...props} title="Report Composition..." />,
-  'Code Generator': CodeVisual,
-  'Reviewer Agent': (props) => <WritingVisual {...props} title="Final Review..." />,
+  'Data Archaeologist': ResearchVisual,
+  'Narrative Architect': (props) => <WritingVisual {...props} title="Strategy Formulation..." />,
+  'Protocol Scribe': (props) => <WritingVisual {...props} title="Report Composition..." />,
+  'Synth-Code Engineer': CodeVisual,
+  'Chief Verifier': (props) => <WritingVisual {...props} title="Final Review..." />,
 };
 
 const extractContentForVisual = (agent: string, streamingText: string): { [key: string]: any } => {
-    if (agent === 'Code Generator') {
+    if (agent === 'Synth-Code Engineer') {
         const codeBlocks = streamingText.match(/```(?:\w+\n)?([\s\S]*?)```/g) || [];
         const code = codeBlocks.map(block => block.replace(/```(?:\w+\n)?/, '').replace(/```/, '')).join('\n\n');
         return { liveCode: code };
     }
-    if (['Technical Writer', 'Content Strategist', 'Reviewer Agent'].includes(agent)) {
+    if (['Protocol Scribe', 'Narrative Architect', 'Chief Verifier'].includes(agent)) {
         const cleanText = streamingText.replace(/\*\*(Thinking|Action)(?:\s\(.*?\))?:\*\*/g, '').trim();
         return { liveText: cleanText };
     }
-    if (agent === 'Research Agent') {
+    if (agent === 'Data Archaeologist') {
         return { streamingText };
     }
     return {};
