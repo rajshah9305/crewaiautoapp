@@ -94,26 +94,26 @@ const AgentCard: React.FC<{ task: Task; streamingLog: LogEntry | undefined }> = 
                 </div>
             </div>
             
-             <div className="grid grid-cols-1 lg:grid-cols-5 bg-background">
-                <div className="lg:col-span-3 border-b lg:border-b-0 lg:border-r border-border p-2">
+            <div className="flex flex-col lg:flex-row bg-background">
+                <div className="lg:flex-[3] lg:min-w-0 border-b lg:border-b-0 lg:border-r border-border p-3">
                      {AgentVisual ? (
                         <div className="h-full min-h-[250px] bg-surface rounded-md border border-border overflow-hidden">
                            <AgentVisual {...visualProps} />
                         </div>
                     ) : <div className="h-full min-h-[250px] bg-surface rounded-md border border-border"/>}
                 </div>
-                <div className="lg:col-span-2 text-sm font-mono text-text-secondary relative flex flex-col p-2">
-                    <div className="relative flex-1 flex flex-col bg-surface rounded-md border border-border p-3 overflow-hidden min-h-[250px]">
+                <div className="lg:flex-[2] lg:min-w-0 text-sm font-mono text-text-secondary relative flex flex-col p-3">
+                    <div className="relative flex-1 flex flex-col bg-black/20 rounded-md border border-border p-3 overflow-hidden min-h-[250px]">
                         <p className="font-sans font-semibold text-xs text-text-secondary uppercase tracking-wider mb-2 flex-shrink-0">Live Log Stream</p>
                         <div className="overflow-y-auto pr-2 flex-1 animate-crt-flicker">
                             <LiveMarkdownRenderer content={streamingContent} />
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/0 to-surface/0 pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                     </div>
                 </div>
             </div>
             
-            <div className="p-3 bg-background/50 border-t border-border flex items-center gap-4">
+            <div className="p-4 bg-background/50 border-t border-border flex items-center gap-4">
                 <ResourceMeter label="CPU" value={resources.cpu} color="var(--cpu-color)" />
                 <ResourceMeter label="Cognition" value={resources.cognition} color="var(--cognition-color)" />
                 <ResourceMeter label="Network" value={resources.network} color="var(--network-color)" />

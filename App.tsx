@@ -402,8 +402,8 @@ const App: React.FC = () => {
         onNewMission={resetState}
         hasSavedPlan={hasSavedPlan}
       />
-      <div className="w-full h-screen flex flex-col font-sans overflow-hidden p-2 sm:p-4 relative">
-          <header className="w-full grid grid-cols-3 items-center gap-4 py-2 px-4 bg-surface/80 backdrop-blur-sm border border-border rounded-lg shadow-md mb-4 animate-fadeInUp z-20">
+      <div className="w-screen h-screen flex flex-col font-sans overflow-hidden">
+          <header className="w-full grid grid-cols-[auto,minmax(0,1fr),auto] items-center gap-4 py-2 bg-surface/80 backdrop-blur-sm border border-border rounded-lg shadow-md animate-fadeInUp z-20 mx-2 sm:mx-4 mt-2 sm:mt-4">
               <div className="flex items-center gap-1 sm:gap-3">
                   {showPanels && (
                     <button aria-label="Toggle Crew Manifest" onClick={() => setIsSidebarOpen(p => !p)} className="p-2 rounded-md hover:bg-border transition-colors">
@@ -442,7 +442,7 @@ const App: React.FC = () => {
               </div>
           </header>
 
-          <main className="flex-1 min-h-0 flex gap-4 transition-all duration-300">
+          <main className="flex-1 min-h-0 flex gap-4 transition-all duration-300 px-2 sm:px-4 pt-4 pb-2 sm:pb-4">
             {currentView === 'mission' ? (
               <>
                 {/* Left Panel: Crew Manifest */}
