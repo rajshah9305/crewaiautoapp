@@ -402,7 +402,7 @@ const App: React.FC = () => {
         onNewMission={resetState}
         hasSavedPlan={hasSavedPlan}
       />
-      <div className="w-screen h-screen flex flex-col font-sans overflow-hidden">
+      <div className="w-full h-screen flex flex-col font-sans">
           <header className="w-full grid grid-cols-[auto,minmax(0,1fr),auto] items-center gap-4 py-2 bg-surface/80 backdrop-blur-sm border border-border rounded-lg shadow-md animate-fadeInUp z-20 mx-2 sm:mx-4 mt-2 sm:mt-4">
               <div className="flex items-center gap-1 sm:gap-3">
                   {showPanels && (
@@ -417,7 +417,7 @@ const App: React.FC = () => {
                       </h1>
                   </div>
               </div>
-              <div className="flex-1 flex flex-col items-center justify-center px-4 overflow-hidden">
+              <div className="flex flex-col items-center justify-center px-4 overflow-hidden">
                 <AgentStatus state={appState} error={errorMessage} startTime={startTime} />
                 {goal && <p className="text-xs text-text-secondary mt-1 truncate max-w-full" title={goal}>{goal}</p>}
               </div>
