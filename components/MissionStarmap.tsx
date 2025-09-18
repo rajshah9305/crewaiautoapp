@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { Task, TaskStatus } from '../types';
 import StellarCartographyIcon from './icons/StellarCartographyIcon';
 import { AGENT_AVATARS } from './agent-config';
@@ -22,6 +22,45 @@ const truncate = (str: string, length: number) => {
 
 
 const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
+  const prevTasksRef = useRef<Map<string, TaskStatus>>(new Map());
+  const [animatedNodes, setAnimatedNodes] = useState<Record<string, string>>({});
+
+  // Effect to apply one-shot animations on status change
+  useEffect(() => {
+    const currentTasksMap = new Map(tasks.map(t => [t.id, t.status]));
+    const newAnimations: Record<string, string> = {};
+
+    currentTasksMap.forEach((currentStatus, taskId) => {
+      const prevStatus = prevTasksRef.current.get(taskId);
+      if (prevStatus) {
+        if (prevStatus !== 'in-progress' && currentStatus === 'in-progress') {
+          newAnimations[taskId] = 'node-activated';
+        } else if (prevStatus === 'in-progress' && currentStatus === 'completed') {
+          newAnimations[taskId] = 'node-completed';
+        }
+      }
+    });
+
+    if (Object.keys(newAnimations).length > 0) {
+      setAnimatedNodes(currentAnims => ({ ...currentAnims, ...newAnimations }));
+
+      const timer = setTimeout(() => {
+        setAnimatedNodes(currentAnims => {
+          const nextAnims = { ...currentAnims };
+          Object.keys(newAnimations).forEach(id => delete nextAnims[id]);
+          return nextAnims;
+        });
+      }, 1000); // Corresponds to animation duration
+
+      return () => clearTimeout(timer);
+    }
+  }, [tasks]);
+
+  // Effect to update the ref *after* render, so the above effect gets the previous state
+  useEffect(() => {
+    prevTasksRef.current = new Map(tasks.map(t => [t.id, t.status]));
+  }, [tasks]);
+
   const graphData = useMemo(() => {
     if (!tasks || tasks.length === 0) return null;
     
@@ -118,6 +157,10 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                 <marker id="arrowhead-completed" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
                   <polygon points="0 0, 10 3.5, 0 7" fill="var(--success-color)" />
                 </marker>
+                <pattern id="blocked-pattern" patternUnits="userSpaceOnUse" width="8" height="8">
+                  <rect width="8" height="8" fill="var(--bg-color)" />
+                  <path d="M-2,2 l4,-4 M0,8 l8,-8 M6,10 l4,-4" stroke="#484f58" strokeWidth="1" />
+                </pattern>
               </defs>
               <g>
               {graphData.edges.map(edge => (
@@ -137,14 +180,15 @@ const MissionStarmap: React.FC<MissionStarmapProps> = ({ tasks }) => {
                 const style = statusStyles[node.status] || statusStyles.pending;
                 const isPulsing = node.status === 'in-progress';
                 const AgentIcon = AGENT_AVATARS[node.agent] || DotIcon;
+                const animationClass = animatedNodes[node.id] || '';
                 return (
-                  <g key={node.id} transform={`translate(${x - graphData.NODE_WIDTH / 2}, ${y - graphData.NODE_HEIGHT / 2})`} className={`cursor-pointer group ${isPulsing ? 'node-in-progress' : ''}`}>
+                  <g key={node.id} transform={`translate(${x - graphData.NODE_WIDTH / 2}, ${y - graphData.NODE_HEIGHT / 2})`} className={`cursor-pointer group ${isPulsing ? 'node-in-progress' : ''} ${animationClass}`}>
                     <title>{`[Task ${index}] ${node.title}\n\nStatus: ${node.status.toUpperCase()}\nAgent: ${node.agent}\n\nDescription:\n${node.description}\n\nDependencies: ${node.dependencies.join(', ') || 'None'}`}</title>
                     <rect
                       width={graphData.NODE_WIDTH}
                       height={graphData.NODE_HEIGHT}
                       rx="8"
-                      fill={style.fill}
+                      fill={node.status === 'blocked' ? 'url(#blocked-pattern)' : style.fill}
                       stroke={style.stroke}
                       strokeWidth="2"
                       className="transition-all duration-300 group-hover:stroke-[3px]"

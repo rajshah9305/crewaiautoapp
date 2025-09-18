@@ -163,6 +163,24 @@
         0%, 100% { stroke: var(--primary-color); }
         50% { stroke: var(--text-primary-color); }
       }
+
+      @keyframes node-activated-anim {
+          0% { filter: drop-shadow(0 0 0 var(--primary-color)); }
+          50% { filter: drop-shadow(0 0 8px var(--primary-color)); }
+          100% { filter: drop-shadow(0 0 0 var(--primary-color)); }
+      }
+      .node-activated > rect {
+          animation: node-activated-anim 1s ease-out;
+      }
+
+      @keyframes node-completed-anim {
+          0% { filter: drop-shadow(0 0 0 var(--success-color)); }
+          50% { filter: drop-shadow(0 0 8px var(--success-color)); }
+          100% { filter: drop-shadow(0 0 0 var(--success-color)); }
+      }
+      .node-completed > rect {
+          animation: node-completed-anim 1s ease-out;
+      }
     </style>
   </head>
   <body>

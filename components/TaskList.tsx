@@ -40,13 +40,13 @@ const TaskStatusIcon: React.FC<{ status: TaskStatus }> = ({ status }) => {
     case 'completed':
       return <CheckCircleIcon className="h-5 w-5 text-success" />;
     case 'in-progress':
-      return <SparklesIcon className="h-5 w-5 text-primary animate-pulse" />;
+      return <SparklesIcon className="h-5 w-5 text-primary animate-pulse shadow-glow rounded-full" />;
     case 'pending':
       return <DotIcon className="h-5 w-5 text-text-secondary opacity-50" />;
     case 'error':
       return <XIcon className="h-5 w-5 text-error" />;
     case 'blocked':
-      return <LockIcon className="h-5 w-5 text-text-secondary opacity-60" />;
+      return <LockIcon className="h-5 w-5 text-text-secondary opacity-80" />;
     default:
       return <DotIcon className="h-5 w-5 text-text-secondary opacity-50" />;
   }
